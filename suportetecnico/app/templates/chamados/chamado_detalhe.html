@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes do Chamado</title>
+</head>
+
+<body>
+
+    <h1>Sistema de Chamados para Suporte Técnico</h1>
+
+    <hr>
+
+    <h2>Detalhes do Chamado</h2>
+
+    <h3>{{ chamado.titulo }}</h3>
+
+    <p>
+        <strong>Descrição:</strong><br>
+        {{ chamado.descricao }}
+    </p>
+
+    <p>
+        <strong>Solicitante:</strong>
+        {{ chamado.solicitante.nome }}
+    </p>
+
+    <p>
+        <strong>Setor:</strong>
+        {{ chamado.setor.nome }}
+    </p>
+
+    <p>
+        <strong>Categoria:</strong>
+        {{ chamado.categoria.nome }}
+    </p>
+
+    <p>
+        <strong>Técnico responsável:</strong>
+
+        {% if chamado.tecnico %}
+            {{ chamado.tecnico.nome }}
+        {% else %}
+            Não atribuído
+        {% endif %}
+
+    </p>
+
+    <a href="/chamados/{{ chamado.id }}/atribuir-tecnico/">
+        Atribuir / Alterar Técnico
+    </a>
+
+    <p>
+        <strong>Prioridade:</strong>
+        {{ chamado.get_prioridade_display }}
+    </p>
+
+    <p>
+        <strong>Status:</strong>
+        {{ chamado.get_status_display }}
+    </p>
+
+    <a href="/chamados/{{ chamado.id }}/alterar-status/">
+        Alterar Status
+    </a>
+    
+    <a href="/chamados/{{ chamado.id }}/responder/">
+        Adicionar Resposta
+    </a>
+
+    <p>
+        <strong>Data de abertura:</strong>
+        {{ chamado.data_abertura }}
+    </p>
+
+    <p>
+        <strong>Data de início:</strong>
+
+        {% if chamado.data_inicio %}
+            {{ chamado.data_inicio }}
+        {% else %}
+            Não iniciado
+        {% endif %}
+
+    </p>
+
+    <p>
+        <strong>Data de encerramento:</strong>
+
+        {% if chamado.data_encerramento %}
+            {{ chamado.data_encerramento }}
+        {% else %}
+            Não encerrado
+        {% endif %}
+
+    </p>
+
+    <hr>
+
+    <h2>Histórico de Respostas</h2>
+
+    {% for resposta in chamado.respostas.all %}
+
+        <div>
+
+            <p>
+                <strong>{{ resposta.usuario.nome }}</strong>
+            </p>
+
+            <p>
+                {{ resposta.mensagem }}
+            </p>
+
+            <p>
+                <small>
+                    {{ resposta.data }}
+                </small>
+            </p>
+
+        </div>
+
+        <hr>
+
+    {% empty %}
+
+        <p>Nenhuma resposta registrada.</p>
+
+    {% endfor %}
+
+    <a href="/chamados/">Voltar para os Chamados</a>
+
+</body>
+
+</html>

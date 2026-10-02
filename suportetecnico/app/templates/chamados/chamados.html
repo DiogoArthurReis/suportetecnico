@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chamados</title>
+</head>
+
+<body>
+
+    <h1>Sistema de Chamados para Suporte Técnico</h1>
+
+    <hr>
+
+    <h2>Lista de Chamados</h2>
+
+    {% if chamados %}
+
+        {% for chamado in chamados %}
+
+            <div>
+                <h3>
+                    <a href="/chamados/{{ chamado.id }}/">
+                        {{ chamado.titulo }}
+                    </a>
+                </h3>
+
+                <p>
+                    <strong>Solicitante:</strong>
+                    {{ chamado.solicitante.nome }}
+                </p>
+
+                <p>
+                    <strong>Setor:</strong>
+                    {{ chamado.setor.nome }}
+                </p>
+
+                <p>
+                    <strong>Categoria:</strong>
+                    {{ chamado.categoria.nome }}
+                </p>
+
+                <p>
+                    <strong>Prioridade:</strong>
+                    {{ chamado.get_prioridade_display }}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    {{ chamado.get_status_display }}
+                </p>
+
+                <p>
+                    <strong>Data de abertura:</strong>
+                    {{ chamado.data_abertura }}
+                </p>
+
+                <hr>
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>Nenhum chamado cadastrado.</p>
+
+    {% endif %}
+
+    <a href="/">Voltar para o Dashboard</a>
+
+</body>
+
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Alterar Status</title>
+</head>
+
+<body>
+
+    <h1>Sistema de Chamados para Suporte Técnico</h1>
+
+    <hr>
+
+    <h2>Alterar Status</h2>
+
+    <h3>{{ chamado.titulo }}</h3>
+
+    <p>
+        <strong>Status atual:</strong>
+        {{ chamado.get_status_display }}
+    </p>
+
+    <hr>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <label for="status">
+            <strong>Novo status:</strong>
+        </label>
+
+        <br><br>
+
+        <select name="status" id="status">
+
+            <option value="ABERTO">
+                Aberto
+            </option>
+
+            <option value="EM_ATENDIMENTO">
+                Em atendimento
+            </option>
+
+            <option value="ENCERRADO">
+                Encerrado
+            </option>
+
+            <option value="REABERTO">
+                Reaberto
+            </option>
+
+        </select>
+
+        <br><br>
+
+        <button type="submit">
+            Alterar Status
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/chamados/{{ chamado.id }}/">
+        Cancelar
+    </a>
+
+</body>
+
+</html>

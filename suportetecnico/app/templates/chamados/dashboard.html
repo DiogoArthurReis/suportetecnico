@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Chamados</title>
+</head>
+
+<body>
+
+    <h1>Sistema de Chamados para Suporte Técnico</h1>
+
+    <hr>
+
+    <h2>Dashboard</h2>
+
+    <h3>Resumo dos Chamados</h3>
+
+    <hr>
+
+    <a href="/chamados/abrir/">
+        Abrir Novo Chamado
+    </a>
+
+    <br><br>
+
+    <a href="/chamados/">
+        Ver Chamados
+    </a>
+
+    <p>
+        Total de chamados:
+        <strong>{{ total_chamados }}</strong>
+    </p>
+
+    <p>
+        Abertos:
+        <strong>{{ abertos }}</strong>
+    </p>
+
+    <p>
+        Em atendimento:
+        <strong>{{ em_atendimento }}</strong>
+    </p>
+
+    <p>
+        Reabertos:
+        <strong>{{ reabertos }}</strong>
+    </p>
+
+    <p>
+        Encerrados:
+        <strong>{{ encerrados }}</strong>
+    </p>
+
+    <hr>
+
+    <a href="/admin/">Acessar Administração</a>
+
+</body>
+
+</html>

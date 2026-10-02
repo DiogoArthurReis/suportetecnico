@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Adicionar Resposta</title>
+</head>
+
+<body>
+
+    <h1>Sistema de Chamados para Suporte Técnico</h1>
+
+    <hr>
+
+    <h2>Adicionar Resposta</h2>
+
+    <h3>{{ chamado.titulo }}</h3>
+
+    <p>
+        <strong>Status:</strong>
+        {{ chamado.get_status_display }}
+    </p>
+
+    <hr>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <label for="usuario">
+            <strong>Usuário:</strong>
+        </label>
+
+        <br><br>
+
+        <select name="usuario" id="usuario">
+
+            <option value="">
+                Selecione o usuário
+            </option>
+
+            {% for usuario in usuarios %}
+
+                <option value="{{ usuario.id }}">
+                    {{ usuario.nome }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+        <br><br>
+
+        <label for="mensagem">
+            <strong>Mensagem:</strong>
+        </label>
+
+        <br><br>
+
+        <textarea
+            name="mensagem"
+            id="mensagem"
+            rows="6"
+            cols="60"
+            placeholder="Digite a resposta..."
+        ></textarea>
+
+        <br><br>
+
+        <button type="submit">
+            Adicionar Resposta
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/chamados/{{ chamado.id }}/">
+        Cancelar
+    </a>
+
+</body>
+
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Atribuir Técnico</title>
+</head>
+
+<body>
+
+    <h1>Sistema de Chamados para Suporte Técnico</h1>
+
+    <hr>
+
+    <h2>Atribuir Técnico</h2>
+
+    <h3>{{ chamado.titulo }}</h3>
+
+    <p>
+        <strong>Solicitante:</strong>
+        {{ chamado.solicitante.nome }}
+    </p>
+
+    <p>
+        <strong>Técnico atual:</strong>
+
+        {% if chamado.tecnico %}
+            {{ chamado.tecnico.nome }}
+        {% else %}
+            Não atribuído
+        {% endif %}
+    </p>
+
+    <hr>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <label for="tecnico">
+            <strong>Selecionar técnico:</strong>
+        </label>
+
+        <br><br>
+
+        <select name="tecnico" id="tecnico">
+
+            <option value="">
+                Selecione um técnico
+            </option>
+
+            {% for tecnico in tecnicos %}
+
+                <option value="{{ tecnico.id }}">
+
+                    {{ tecnico.nome }}
+
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+        <br><br>
+
+        <button type="submit">
+            Atribuir Técnico
+        </button>
+
+    </form>
+
+    <br>
+
+    <a href="/chamados/{{ chamado.id }}/">
+        Cancelar
+    </a>
+
+</body>
+
+</html>
