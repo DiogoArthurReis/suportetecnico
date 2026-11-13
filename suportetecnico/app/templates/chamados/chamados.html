@@ -1,73 +1,94 @@
-<!DOCTYPE html>
-<html lang="pt-br">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Chamados</title>
-</head>
+{% extends 'chamados/base.html' %}
 
-<body>
+{% block title %}Chamados | Sistema de Suporte{% endblock %}
 
-    <h1>Sistema de Chamados para Suporte Técnico</h1>
+{% block content %}
 
-    <hr>
+<div class="page-heading">
+    <div>
+        <h1>Chamados</h1>
+        <p>Consulte e acompanhe os chamados de suporte técnico.</p>
+    </div>
 
-    <h2>Lista de Chamados</h2>
+    {% if usuario.perfil == "ADMINISTRADOR" or usuario.perfil == "SOLICITANTE" %}
+        <a href="{% url 'abrir_chamado' %}" class="btn">
+            + Novo chamado
+        </a>
+    {% endif %}
+</div>
+
+<div class="table-container">
 
     {% if chamados %}
 
-        {% for chamado in chamados %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Chamado</th>
+                <th>Solicitante</th>
+                <th>Setor</th>
+                <th>Categoria</th>
+                <th>Prioridade</th>
+                <th>Status</th>
+                <th>Data de abertura</th>
+            </tr>
+        </thead>
 
-            <div>
-                <h3>
-                    <a href="/chamados/{{ chamado.id }}/">
-                        {{ chamado.titulo }}
+        <tbody>
+            {% for chamado in chamados %}
+            <tr>
+                <td>
+                    <a href="{% url 'detalhe_chamado' chamado.id %}" class="table-link">
+                        #{{ chamado.id }} - {{ chamado.titulo }}
                     </a>
-                </h3>
+                </td>
 
-                <p>
-                    <strong>Solicitante:</strong>
-                    {{ chamado.solicitante.nome }}
-                </p>
+                <td>{{ chamado.solicitante.nome }}</td>
+                <td>{{ chamado.setor.nome }}</td>
+                <td>{{ chamado.categoria.nome }}</td>
 
-                <p>
-                    <strong>Setor:</strong>
-                    {{ chamado.setor.nome }}
-                </p>
+                <td>
+                    <span class="priority priority-{{ chamado.prioridade|lower }}">
+                        {{ chamado.get_prioridade_display }}
+                    </span>
+                </td>
 
-                <p>
-                    <strong>Categoria:</strong>
-                    {{ chamado.categoria.nome }}
-                </p>
+                <td>
+                    {% if chamado.status == "ABERTO" %}
+                        <span class="status status-aberto">Aberto</span>
+                    {% elif chamado.status == "EM_ATENDIMENTO" %}
+                        <span class="status status-atendimento">Em atendimento</span>
+                    {% elif chamado.status == "ENCERRADO" %}
+                        <span class="status status-encerrado">Encerrado</span>
+                    {% elif chamado.status == "REABERTO" %}
+                        <span class="status status-reaberto">Reaberto</span>
+                    {% else %}
+                        {{ chamado.get_status_display }}
+                    {% endif %}
+                </td>
 
-                <p>
-                    <strong>Prioridade:</strong>
-                    {{ chamado.get_prioridade_display }}
-                </p>
-
-                <p>
-                    <strong>Status:</strong>
-                    {{ chamado.get_status_display }}
-                </p>
-
-                <p>
-                    <strong>Data de abertura:</strong>
-                    {{ chamado.data_abertura }}
-                </p>
-
-                <hr>
-            </div>
-
-        {% endfor %}
+                <td>{{ chamado.data_abertura|date:"d/m/Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
     {% else %}
 
-        <p>Nenhum chamado cadastrado.</p>
+        <div class="empty-state">
+            <h3>Nenhum chamado encontrado</h3>
+            <p>Não existem chamados para exibir no momento.</p>
+        </div>
 
     {% endif %}
 
-    <a href="/">Voltar para o Dashboard</a>
+</div>
 
-</body>
+<div style="margin-top: 22px;">
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+        Voltar ao Dashboard
+    </a>
+</div>
 
-</html>
+{% endblock %}

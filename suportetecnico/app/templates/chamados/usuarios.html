@@ -1,0 +1,105 @@
+
+{% extends 'chamados/base.html' %}
+
+{% block title %}Gerenciar Usuários | Suporte Técnico{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Gerenciar Usuários</h1>
+        <p>Cadastre, consulte e gerencie os usuários do sistema.</p>
+    </div>
+
+    <a href="{% url 'cadastrar_usuario' %}" class="btn">
+        + Novo usuário
+    </a>
+</div>
+
+<div class="table-container">
+
+    {% if usuarios %}
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Setor</th>
+                <th>Perfil</th>
+                <th>Situação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td><strong>{{ usuario.nome }}</strong></td>
+
+                <td>{{ usuario.email }}</td>
+
+                <td>
+                    {% if usuario.setor %}
+                        {{ usuario.setor.nome }}
+                    {% else %}
+                        Não informado
+                    {% endif %}
+                </td>
+
+                <td>{{ usuario.get_perfil_display }}</td>
+
+                <td>
+                    {% if usuario.ativo %}
+                        <span class="status status-encerrado">Ativo</span>
+                    {% else %}
+                        <span class="status status-aberto">Inativo</span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <div class="user-actions">
+
+                        <a href="{% url 'editar_usuario' usuario.id %}" class="btn btn-small">
+                            Editar
+                        </a>
+
+                        <form method="POST" action="{% url 'alterar_ativo_usuario' usuario.id %}">
+                            {% csrf_token %}
+
+                            {% if usuario.ativo %}
+                                <button type="submit" class="btn btn-danger btn-small">
+                                    Desativar
+                                </button>
+                            {% else %}
+                                <button type="submit" class="btn btn-success btn-small">
+                                    Ativar
+                                </button>
+                            {% endif %}
+                        </form>
+
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% else %}
+
+        <div class="empty-state">
+            <h3>Nenhum usuário cadastrado</h3>
+            <p>Cadastre um usuário para começar.</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+<div style="margin-top: 22px;">
+    <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+        Voltar ao Dashboard
+    </a>
+</div>
+
+{% endblock %}

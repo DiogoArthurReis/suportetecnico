@@ -1,0 +1,82 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | Suporte Técnico</title>
+    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
+</head>
+
+<body class="login-body">
+
+    <div class="login-container">
+
+        <div class="login-header">
+            <div class="login-icon">
+                <span>ST</span>
+            </div>
+
+            <h1>SUPORTE TÉCNICO</h1>
+            <p>Sistema de gerenciamento de chamados</p>
+        </div>
+
+        <div class="login-card">
+
+            <h2>Bem-vindo!</h2>
+            <p class="login-description">
+                Entre com suas credenciais para acessar o sistema.
+            </p>
+
+            {% if erro %}
+                <div class="error-message">
+                    {{ erro }}
+                </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        placeholder="Digite seu usuário"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        placeholder="Digite sua senha"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn login-button">
+                    Entrar no sistema
+                </button>
+
+            </form>
+
+        </div>
+
+        <p class="login-footer">
+            Sistema de Chamados para Suporte Técnico
+        </p>
+
+    </div>
+
+</body>
+</html>

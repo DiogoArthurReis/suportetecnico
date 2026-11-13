@@ -22,14 +22,18 @@ class Categoria(models.Model):
         verbose_name_plural = "Categorias"
 
 class Usuario(models.Model):
+    PERFIL_CHOICES = [
+        ("ADMINISTRADOR", "Administrador"),
+        ("TECNICO", "Técnico"),
+        ("SOLICITANTE", "Solicitante"),
+    ]
+    perfil = models.CharField(max_length=20, choices=PERFIL_CHOICES, default="SOLICITANTE", verbose_name="Perfil")
+    usuario_login = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Usuário de login")
     nome = models.CharField(max_length=100, verbose_name="Nome")
     email = models.CharField(max_length=100, verbose_name="Email")
-    setor = models.ForeignKey(
-        Setor,
-        on_delete=models.CASCADE,
-        verbose_name="Setor"
-    )
+    setor = models.ForeignKey(Setor, on_delete=models.CASCADE, verbose_name="Setor")
     tecnico = models.BooleanField(default=False, verbose_name="É técnico?")
+    ativo = models.BooleanField(default=True, verbose_name="Ativo?")
     def __str__(self):
         return self.nome
     

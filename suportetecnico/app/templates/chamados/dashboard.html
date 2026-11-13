@@ -1,62 +1,66 @@
-<!DOCTYPE html>
-<html lang="pt-br">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Sistema de Chamados</title>
-</head>
+{% extends 'chamados/base.html' %}
 
-<body>
+{% block title %}Dashboard | Sistema de Chamados{% endblock %}
 
-    <h1>Sistema de Chamados para Suporte Técnico</h1>
+{% block content %}
 
-    <hr>
+<div class="topbar">
+    <div>
+        <h1>Dashboard</h1>
+        <p class="welcome">Bem-vindo ao sistema de suporte técnico.</p>
+    </div>
+</div>
 
-    <h2>Dashboard</h2>
+<h2>Resumo dos chamados</h2>
 
-    <h3>Resumo dos Chamados</h3>
+<div class="cards">
 
-    <hr>
+    <div class="card">
+        <p>Total de chamados</p>
+        <h2>{{ total_chamados }}</h2>
+    </div>
 
-    <a href="/chamados/abrir/">
-        Abrir Novo Chamado
-    </a>
+    <div class="card">
+        <p>Chamados abertos</p>
+        <h2>{{ abertos }}</h2>
+    </div>
 
-    <br><br>
+    <div class="card">
+        <p>Em atendimento</p>
+        <h2>{{ em_atendimento }}</h2>
+    </div>
 
-    <a href="/chamados/">
-        Ver Chamados
-    </a>
+    <div class="card">
+        <p>Reabertos</p>
+        <h2>{{ reabertos }}</h2>
+    </div>
 
-    <p>
-        Total de chamados:
-        <strong>{{ total_chamados }}</strong>
-    </p>
+    <div class="card">
+        <p>Encerrados</p>
+        <h2>{{ encerrados }}</h2>
+    </div>
 
-    <p>
-        Abertos:
-        <strong>{{ abertos }}</strong>
-    </p>
+</div>
 
-    <p>
-        Em atendimento:
-        <strong>{{ em_atendimento }}</strong>
-    </p>
+<div class="section">
+    <h2>Acesso rápido</h2>
 
-    <p>
-        Reabertos:
-        <strong>{{ reabertos }}</strong>
-    </p>
+    <div class="actions">
+        <a href="{% url 'abrir_chamado' %}" class="btn">
+            Abrir novo chamado
+        </a>
 
-    <p>
-        Encerrados:
-        <strong>{{ encerrados }}</strong>
-    </p>
+        <a href="{% url 'lista_chamados' %}" class="btn btn-secondary">
+            Consultar chamados
+        </a>
 
-    <hr>
+        {% if request.user.is_staff %}
+            <a href="{% url 'lista_usuarios' %}" class="btn btn-secondary">
+                Gerenciar usuários
+            </a>
+        {% endif %}
+    </div>
+</div>
 
-    <a href="/admin/">Acessar Administração</a>
-
-</body>
-
-</html>
+{% endblock %}

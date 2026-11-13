@@ -1,72 +1,91 @@
-<!DOCTYPE html>
-<html lang="pt-br">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Alterar Status</title>
-</head>
+{% extends 'chamados/base.html' %}
 
-<body>
+{% block title %}Alterar Status | Suporte Técnico{% endblock %}
 
-    <h1>Sistema de Chamados para Suporte Técnico</h1>
+{% block content %}
 
-    <hr>
+<div class="page-heading">
+    <div>
+        <h1>Alterar Status</h1>
+        <p>Atualize a situação do chamado no sistema.</p>
+    </div>
+</div>
 
-    <h2>Alterar Status</h2>
+<div class="status-container">
 
-    <h3>{{ chamado.titulo }}</h3>
+    <div class="status-header">
+        <div>
+            <span class="status-label">CHAMADO</span>
+            <h2>{{ chamado.titulo }}</h2>
+        </div>
 
-    <p>
-        <strong>Status atual:</strong>
-        {{ chamado.get_status_display }}
-    </p>
+        <span class="status
+            {% if chamado.status == 'ABERTO' %}status-aberto
+            {% elif chamado.status == 'EM_ATENDIMENTO' %}status-atendimento
+            {% elif chamado.status == 'ENCERRADO' %}status-encerrado
+            {% elif chamado.status == 'REABERTO' %}status-reaberto
+            {% endif %}">
+            {{ chamado.get_status_display }}
+        </span>
+    </div>
 
-    <hr>
+    <div class="current-status">
+        <span>Status atual</span>
+        <strong>{{ chamado.get_status_display }}</strong>
+        <p>Este é o status registrado atualmente para o chamado.</p>
+    </div>
 
-    <form method="POST">
+    <div class="status-form">
 
-        {% csrf_token %}
+        <h3>Atualizar situação</h3>
+        <p>Selecione abaixo o novo status do chamado.</p>
 
-        <label for="status">
-            <strong>Novo status:</strong>
-        </label>
+        <form method="POST">
+            {% csrf_token %}
 
-        <br><br>
+            <div class="form-group">
+                <label for="status">Novo status</label>
 
-        <select name="status" id="status">
+                <select name="status" id="status" required>
 
-            <option value="ABERTO">
-                Aberto
-            </option>
+                    <option value="ABERTO"
+                        {% if chamado.status == 'ABERTO' %}selected{% endif %}>
+                        Aberto
+                    </option>
 
-            <option value="EM_ATENDIMENTO">
-                Em atendimento
-            </option>
+                    <option value="EM_ATENDIMENTO"
+                        {% if chamado.status == 'EM_ATENDIMENTO' %}selected{% endif %}>
+                        Em atendimento
+                    </option>
 
-            <option value="ENCERRADO">
-                Encerrado
-            </option>
+                    <option value="ENCERRADO"
+                        {% if chamado.status == 'ENCERRADO' %}selected{% endif %}>
+                        Encerrado
+                    </option>
 
-            <option value="REABERTO">
-                Reaberto
-            </option>
+                    <option value="REABERTO"
+                        {% if chamado.status == 'REABERTO' %}selected{% endif %}>
+                        Reaberto
+                    </option>
 
-        </select>
+                </select>
+            </div>
 
-        <br><br>
+            <div class="form-actions">
+                <button type="submit" class="btn">
+                    Confirmar alteração
+                </button>
 
-        <button type="submit">
-            Alterar Status
-        </button>
+                <a href="{% url 'detalhe_chamado' chamado.id %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+            </div>
 
-    </form>
+        </form>
 
-    <br>
+    </div>
 
-    <a href="/chamados/{{ chamado.id }}/">
-        Cancelar
-    </a>
+</div>
 
-</body>
-
-</html>
+{% endblock %}

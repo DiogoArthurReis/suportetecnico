@@ -1,84 +1,84 @@
-<!DOCTYPE html>
-<html lang="pt-br">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Adicionar Resposta</title>
-</head>
+{% extends 'chamados/base.html' %}
 
-<body>
+{% block title %}Adicionar Resposta | Suporte Técnico{% endblock %}
 
-    <h1>Sistema de Chamados para Suporte Técnico</h1>
+{% block content %}
 
-    <hr>
+<div class="page-heading">
+    <div>
+        <h1>Adicionar Resposta</h1>
+        <p>Registre uma mensagem ou atualização neste chamado.</p>
+    </div>
+</div>
 
-    <h2>Adicionar Resposta</h2>
+<div class="response-container">
 
-    <h3>{{ chamado.titulo }}</h3>
+    <div class="response-page-header">
+        <div>
+            <span class="response-label">CHAMADO</span>
+            <h2>{{ chamado.titulo }}</h2>
+        </div>
 
-    <p>
-        <strong>Status:</strong>
-        {{ chamado.get_status_display }}
-    </p>
+        <span class="status
+            {% if chamado.status == 'ABERTO' %}status-aberto
+            {% elif chamado.status == 'EM_ATENDIMENTO' %}status-atendimento
+            {% elif chamado.status == 'ENCERRADO' %}status-encerrado
+            {% elif chamado.status == 'REABERTO' %}status-reaberto
+            {% endif %}">
+            {{ chamado.get_status_display }}
+        </span>
+    </div>
 
-    <hr>
+    {% if erro %}
+        <div class="error-message">
+            {{ erro }}
+        </div>
+    {% endif %}
 
-    <form method="POST">
+    <div class="response-form">
 
-        {% csrf_token %}
+        <h3>Nova mensagem</h3>
+        <p>Preencha o campo abaixo com sua resposta.</p>
 
-        <label for="usuario">
-            <strong>Usuário:</strong>
-        </label>
+        <div class="response-author">
+            <span>Respondendo como</span>
+            <strong>{{ request.user.username }}</strong>
+        </div>
 
-        <br><br>
+        <form method="POST">
+            {% csrf_token %}
 
-        <select name="usuario" id="usuario">
+            <div class="form-group">
+                <label for="mensagem">Mensagem</label>
 
-            <option value="">
-                Selecione o usuário
-            </option>
+                <textarea
+                    name="mensagem"
+                    id="mensagem"
+                    rows="7"
+                    placeholder="Digite sua resposta..."
+                    required
+                ></textarea>
 
-            {% for usuario in usuarios %}
+                <span class="field-help">
+                    Escreva informações claras sobre o atendimento ou a solução do problema.
+                </span>
+            </div>
 
-                <option value="{{ usuario.id }}">
-                    {{ usuario.nome }}
-                </option>
+            <div class="form-actions">
+                <button type="submit" class="btn">
+                    Adicionar Resposta
+                </button>
 
-            {% endfor %}
+                <a href="{% url 'detalhe_chamado' chamado.id %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+            </div>
 
-        </select>
+        </form>
 
-        <br><br>
+    </div>
 
-        <label for="mensagem">
-            <strong>Mensagem:</strong>
-        </label>
+</div>
 
-        <br><br>
-
-        <textarea
-            name="mensagem"
-            id="mensagem"
-            rows="6"
-            cols="60"
-            placeholder="Digite a resposta..."
-        ></textarea>
-
-        <br><br>
-
-        <button type="submit">
-            Adicionar Resposta
-        </button>
-
-    </form>
-
-    <br>
-
-    <a href="/chamados/{{ chamado.id }}/">
-        Cancelar
-    </a>
-
-</body>
-
-</html>
+{% endblock %}

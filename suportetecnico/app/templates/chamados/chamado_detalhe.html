@@ -1,135 +1,164 @@
-<!DOCTYPE html>
-<html lang="pt-br">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Detalhes do Chamado</title>
-</head>
+{% extends 'chamados/base.html' %}
 
-<body>
+{% block title %}Detalhes do Chamado | Suporte Técnico{% endblock %}
 
-    <h1>Sistema de Chamados para Suporte Técnico</h1>
+{% block content %}
 
-    <hr>
+<div class="detail-header">
+    <h1>Detalhes do Chamado</h1>
+    <p>Visualize as informações e acompanhe o atendimento.</p>
+</div>
 
-    <h2>Detalhes do Chamado</h2>
+<div class="section">
 
-    <h3>{{ chamado.titulo }}</h3>
+    <div class="page-heading">
+        <div>
+            <h2>{{ chamado.titulo }}</h2>
+            <p>Chamado #{{ chamado.id }}</p>
+        </div>
 
-    <p>
-        <strong>Descrição:</strong><br>
-        {{ chamado.descricao }}
-    </p>
+        {% if chamado.status == "ABERTO" %}
+            <span class="status status-aberto">Aberto</span>
+        {% elif chamado.status == "EM_ATENDIMENTO" %}
+            <span class="status status-atendimento">Em atendimento</span>
+        {% elif chamado.status == "ENCERRADO" %}
+            <span class="status status-encerrado">Encerrado</span>
+        {% elif chamado.status == "REABERTO" %}
+            <span class="status status-reaberto">Reaberto</span>
+        {% endif %}
+    </div>
 
-    <p>
-        <strong>Solicitante:</strong>
-        {{ chamado.solicitante.nome }}
-    </p>
+    <div class="detail-item">
+        <small>Descrição do problema</small>
+        <div class="description">{{ chamado.descricao }}</div>
+    </div>
 
-    <p>
-        <strong>Setor:</strong>
-        {{ chamado.setor.nome }}
-    </p>
+    <h2 style="margin-top: 25px;">Informações do chamado</h2>
 
-    <p>
-        <strong>Categoria:</strong>
-        {{ chamado.categoria.nome }}
-    </p>
+    <div class="detail-grid">
 
-    <p>
-        <strong>Técnico responsável:</strong>
+        <div class="detail-item">
+            <small>Solicitante</small>
+            <strong>{{ chamado.solicitante.nome }}</strong>
+        </div>
 
-        {% if chamado.tecnico %}
-            {{ chamado.tecnico.nome }}
-        {% else %}
-            Não atribuído
+        <div class="detail-item">
+            <small>Setor</small>
+            <strong>{{ chamado.setor.nome }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <small>Categoria</small>
+            <strong>{{ chamado.categoria.nome }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <small>Técnico responsável</small>
+            <strong>
+                {% if chamado.tecnico %}
+                    {{ chamado.tecnico.nome }}
+                {% else %}
+                    Não atribuído
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <small>Prioridade</small>
+            <strong>
+                <span class="priority priority-{{ chamado.prioridade|lower }}">
+                    {{ chamado.get_prioridade_display }}
+                </span>
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <small>Data de abertura</small>
+            <strong>{{ chamado.data_abertura|date:"d/m/Y H:i" }}</strong>
+        </div>
+
+        <div class="detail-item">
+            <small>Data de início</small>
+            <strong>
+                {% if chamado.data_inicio %}
+                    {{ chamado.data_inicio|date:"d/m/Y H:i" }}
+                {% else %}
+                    Não iniciado
+                {% endif %}
+            </strong>
+        </div>
+
+        <div class="detail-item">
+            <small>Data de encerramento</small>
+            <strong>
+                {% if chamado.data_encerramento %}
+                    {{ chamado.data_encerramento|date:"d/m/Y H:i" }}
+                {% else %}
+                    Não encerrado
+                {% endif %}
+            </strong>
+        </div>
+
+    </div>
+
+    <div class="detail-actions">
+
+        {% if usuario.perfil == "ADMINISTRADOR" %}
+            <a href="{% url 'atribuir_tecnico' chamado.id %}" class="btn">
+                Atribuir técnico
+            </a>
         {% endif %}
 
-    </p>
-
-    <a href="/chamados/{{ chamado.id }}/atribuir-tecnico/">
-        Atribuir / Alterar Técnico
-    </a>
-
-    <p>
-        <strong>Prioridade:</strong>
-        {{ chamado.get_prioridade_display }}
-    </p>
-
-    <p>
-        <strong>Status:</strong>
-        {{ chamado.get_status_display }}
-    </p>
-
-    <a href="/chamados/{{ chamado.id }}/alterar-status/">
-        Alterar Status
-    </a>
-    
-    <a href="/chamados/{{ chamado.id }}/responder/">
-        Adicionar Resposta
-    </a>
-
-    <p>
-        <strong>Data de abertura:</strong>
-        {{ chamado.data_abertura }}
-    </p>
-
-    <p>
-        <strong>Data de início:</strong>
-
-        {% if chamado.data_inicio %}
-            {{ chamado.data_inicio }}
-        {% else %}
-            Não iniciado
+        {% if usuario.perfil == "ADMINISTRADOR" or usuario.perfil == "TECNICO" %}
+            <a href="{% url 'alterar_status' chamado.id %}" class="btn">
+                Alterar status
+            </a>
         {% endif %}
 
-    </p>
+        <a href="{% url 'adicionar_resposta' chamado.id %}" class="btn btn-secondary">
+            Adicionar resposta
+        </a>
 
-    <p>
-        <strong>Data de encerramento:</strong>
+        <a href="{% url 'lista_chamados' %}" class="btn btn-secondary">
+            Voltar aos chamados
+        </a>
 
-        {% if chamado.data_encerramento %}
-            {{ chamado.data_encerramento }}
-        {% else %}
-            Não encerrado
-        {% endif %}
+    </div>
 
-    </p>
+</div>
 
-    <hr>
+<div class="section">
 
-    <h2>Histórico de Respostas</h2>
+    <h2>Histórico de respostas</h2>
 
     {% for resposta in chamado.respostas.all %}
 
-        <div>
+        <div class="response">
 
-            <p>
+            <div class="response-header">
                 <strong>{{ resposta.usuario.nome }}</strong>
-            </p>
 
-            <p>
+                <span class="response-date">
+                    {{ resposta.data|date:"d/m/Y H:i" }}
+                </span>
+            </div>
+
+            <div class="description">
                 {{ resposta.mensagem }}
-            </p>
-
-            <p>
-                <small>
-                    {{ resposta.data }}
-                </small>
-            </p>
+            </div>
 
         </div>
 
-        <hr>
-
     {% empty %}
 
-        <p>Nenhuma resposta registrada.</p>
+        <div class="empty-state">
+            <h3>Nenhuma resposta registrada</h3>
+            <p>As respostas adicionadas aparecerão aqui.</p>
+        </div>
 
     {% endfor %}
 
-    <a href="/chamados/">Voltar para os Chamados</a>
+</div>
 
-</body>
-
-</html>
+{% endblock %}

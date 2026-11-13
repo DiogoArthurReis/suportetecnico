@@ -1,80 +1,93 @@
-<!DOCTYPE html>
-<html lang="pt-br">
 
-<head>
-    <meta charset="UTF-8">
-    <title>Atribuir Técnico</title>
-</head>
+{% extends 'chamados/base.html' %}
 
-<body>
+{% block title %}Atribuir Técnico | Suporte Técnico{% endblock %}
 
-    <h1>Sistema de Chamados para Suporte Técnico</h1>
+{% block content %}
 
-    <hr>
+<div class="page-heading">
+    <div>
+        <h1>Atribuir Técnico</h1>
+        <p>Gerencie o profissional responsável pelo atendimento.</p>
+    </div>
+</div>
 
-    <h2>Atribuir Técnico</h2>
+<div class="assignment-container">
 
-    <h3>{{ chamado.titulo }}</h3>
+    <div class="assignment-header">
+        <div>
+            <span class="assignment-label">CHAMADO</span>
+            <h2>{{ chamado.titulo }}</h2>
+        </div>
+        <span class="status status-atendimento">
+            {{ chamado.get_status_display }}
+        </span>
+    </div>
 
-    <p>
-        <strong>Solicitante:</strong>
-        {{ chamado.solicitante.nome }}
-    </p>
+    <div class="assignment-summary">
 
-    <p>
-        <strong>Técnico atual:</strong>
+        <div class="assignment-info">
+            <span>Solicitante</span>
+            <strong>{{ chamado.solicitante.nome }}</strong>
+        </div>
 
-        {% if chamado.tecnico %}
-            {{ chamado.tecnico.nome }}
-        {% else %}
-            Não atribuído
-        {% endif %}
-    </p>
+        <div class="assignment-info">
+            <span>Técnico atual</span>
+            <strong>
+                {% if chamado.tecnico %}
+                    {{ chamado.tecnico.nome }}
+                {% else %}
+                    Não atribuído
+                {% endif %}
+            </strong>
+        </div>
 
-    <hr>
+        <div class="assignment-info">
+            <span>Categoria</span>
+            <strong>{{ chamado.categoria.nome }}</strong>
+        </div>
 
-    <form method="POST">
+    </div>
 
-        {% csrf_token %}
+    <div class="assignment-form">
 
-        <label for="tecnico">
-            <strong>Selecionar técnico:</strong>
-        </label>
+        <h3>Responsável pelo atendimento</h3>
+        <p>Selecione o técnico que ficará responsável por este chamado.</p>
 
-        <br><br>
+        <form method="POST">
+            {% csrf_token %}
 
-        <select name="tecnico" id="tecnico">
+            <div class="form-group">
+                <label for="tecnico">Técnico responsável</label>
 
-            <option value="">
-                Selecione um técnico
-            </option>
+                <select name="tecnico" id="tecnico">
+                    <option value="">Selecione um técnico</option>
 
-            {% for tecnico in tecnicos %}
+                    {% for tecnico in tecnicos %}
+                        <option
+                            value="{{ tecnico.id }}"
+                            {% if chamado.tecnico_id == tecnico.id %}selected{% endif %}
+                        >
+                            {{ tecnico.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-                <option value="{{ tecnico.id }}">
+            <div class="form-actions">
+                <button type="submit" class="btn">
+                    Confirmar atribuição
+                </button>
 
-                    {{ tecnico.nome }}
+                <a href="{% url 'detalhe_chamado' chamado.id %}" class="btn btn-secondary">
+                    Cancelar
+                </a>
+            </div>
 
-                </option>
+        </form>
 
-            {% endfor %}
+    </div>
 
-        </select>
+</div>
 
-        <br><br>
-
-        <button type="submit">
-            Atribuir Técnico
-        </button>
-
-    </form>
-
-    <br>
-
-    <a href="/chamados/{{ chamado.id }}/">
-        Cancelar
-    </a>
-
-</body>
-
-</html>
+{% endblock %}
