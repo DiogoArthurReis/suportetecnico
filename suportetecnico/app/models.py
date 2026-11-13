@@ -11,12 +11,14 @@ class Setor(models.Model):
         verbose_name_plural = "Setores"
 
 class Categoria(models.Model):
-    nome = models.CharField(max_length=100, verbose_name="Nome da Categoria")
-    usuario_login = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="Usuário de login"
-)
+    nome = models.CharField(
+        max_length=100,
+        verbose_name="Nome da Categoria"
+    )
+
     def __str__(self):
         return self.nome
-    
+
     class Meta:
         verbose_name = "Categoria"
         verbose_name_plural = "Categorias"

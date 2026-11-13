@@ -47,40 +47,47 @@
                     required
                 ></textarea>
             </div>
-
+            
             {% if usuario.perfil == "ADMINISTRADOR" %}
-                <div class="form-group">
-                    <label for="solicitante">Solicitante</label>
-            
-                    <select name="solicitante" id="solicitante" required>
-                        <option value="">Selecione o solicitante</option>
-            
-                        {% for pessoa in usuarios %}
-                            <option value="{{ pessoa.id }}">
-                                {{ pessoa.nome }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-            {% else %}
-                <div class="form-group">
-                    <label>Solicitante</label>
-                    <div class="field-display">
-                        {{ usuario.nome }}
-                    </div>
-                </div>
-            {% endif %}
-
             <div class="form-group">
-                <label for="setor">Setor</label>
-                <select name="setor" id="setor" required>
-                    <option value="">Selecione o setor</option>
-                    {% for setor in setores %}
-                        <option value="{{ setor.id }}">
-                            {{ setor.nome }}
+                <label for="solicitante">Solicitante</label>
+
+                <select name="solicitante" id="solicitante" required>
+                    <option value="">Selecione o solicitante</option>
+
+                    {% for pessoa in usuarios %}
+                        <option
+                            value="{{ pessoa.id }}"
+                            data-setor="{% if pessoa.setor %}{{ pessoa.setor.nome }}{% else %}Sem setor cadastrado{% endif %}"
+                        >
+                            {{ pessoa.nome }}
                         </option>
                     {% endfor %}
                 </select>
+            </div>
+            {% else %}
+            <div class="form-group">
+                <label>Solicitante</label>
+                <div class="field-display">
+                    {{ usuario.nome }}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label>Setor</label>
+
+                <div class="field-display" id="setor-display">
+                    {% if usuario.perfil == "SOLICITANTE" %}
+                        {% if usuario.setor %}
+                            {{ usuario.setor.nome }}
+                        {% else %}
+                            Sem setor cadastrado
+                        {% endif %}
+                    {% else %}
+                        Selecione um solicitante
+                    {% endif %}
+                </div>
             </div>
 
             <div class="form-group">
@@ -121,5 +128,26 @@
     </form>
 
 </div>
+
+{% if usuario.perfil == "ADMINISTRADOR" %}
+<script>
+    const solicitanteSelect = document.getElementById("solicitante");
+    const setorDisplay = document.getElementById("setor-display");
+
+    solicitanteSelect.addEventListener("change", function() {
+
+        const opcao = solicitanteSelect.options[
+            solicitanteSelect.selectedIndex
+        ];
+
+        if (solicitanteSelect.value === "") {
+            setorDisplay.textContent = "Selecione um solicitante";
+        } else {
+            setorDisplay.textContent = opcao.dataset.setor;
+        }
+
+    });
+</script>
+{% endif %}
 
 {% endblock %}

@@ -44,23 +44,45 @@
 </div>
 
 <div class="section">
+
     <h2>Acesso rápido</h2>
 
     <div class="actions">
-        <a href="{% url 'abrir_chamado' %}" class="btn">
-            Abrir novo chamado
-        </a>
 
-        <a href="{% url 'lista_chamados' %}" class="btn btn-secondary">
-            Consultar chamados
-        </a>
+        {% if usuario.perfil == "ADMINISTRADOR" %}
 
-        {% if request.user.is_staff %}
+            <a href="{% url 'abrir_chamado' %}" class="btn">
+                Abrir novo chamado
+            </a>
+
+            <a href="{% url 'lista_chamados' %}" class="btn btn-secondary">
+                Consultar chamados
+            </a>
+
             <a href="{% url 'lista_usuarios' %}" class="btn btn-secondary">
                 Gerenciar usuários
             </a>
+
+        {% elif usuario.perfil == "TECNICO" %}
+
+            <a href="{% url 'lista_chamados' %}" class="btn btn-secondary">
+                Consultar chamados
+            </a>
+
+        {% elif usuario.perfil == "SOLICITANTE" %}
+
+            <a href="{% url 'abrir_chamado' %}" class="btn">
+                Abrir novo chamado
+            </a>
+
+            <a href="{% url 'lista_chamados' %}" class="btn btn-secondary">
+                Meus chamados
+            </a>
+
         {% endif %}
+
     </div>
+
 </div>
 
 {% endblock %}

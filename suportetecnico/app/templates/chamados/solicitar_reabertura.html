@@ -1,0 +1,73 @@
+
+{% extends 'chamados/base.html' %}
+
+{% block title %}Solicitar Reabertura | Suporte Técnico{% endblock %}
+
+{% block content %}
+
+<div class="detail-header">
+    <h1>Solicitar Reabertura</h1>
+    <p>Informe por que o chamado precisa de um novo atendimento.</p>
+</div>
+
+<div class="section">
+
+    <div class="page-heading">
+        <div>
+            <h2>{{ chamado.titulo }}</h2>
+            <p>Chamado #{{ chamado.id }}</p>
+        </div>
+
+        <span class="status status-encerrado">
+            Encerrado
+        </span>
+    </div>
+
+    <div class="detail-item">
+        <small>Descrição original</small>
+        <div class="description">
+            {{ chamado.descricao }}
+        </div>
+    </div>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        {% if erro %}
+            <div class="error-message">
+                {{ erro }}
+            </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="motivo">
+                Motivo da reabertura
+            </label>
+
+            <textarea
+                id="motivo"
+                name="motivo"
+                rows="6"
+                placeholder="Explique o motivo pelo qual o chamado precisa ser reaberto..."
+                required
+            ></textarea>
+        </div>
+
+        <div class="actions">
+
+            <button type="submit" class="btn">
+                Enviar solicitação
+            </button>
+
+            <a href="{% url 'detalhe_chamado' chamado.id %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

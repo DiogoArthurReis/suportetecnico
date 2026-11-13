@@ -194,7 +194,6 @@ def atribuir_tecnico(request, id):
         contexto
     )
 
-
 # =====================================================
 # ALTERAR STATUS
 # =====================================================
@@ -204,6 +203,16 @@ def atribuir_tecnico(request, id):
 def alterar_status(request, id):
 
     chamado = get_object_or_404(Chamado, id=id)
+
+    usuario = Usuario.objects.filter(
+        usuario_login=request.user,
+        ativo=True
+    ).first()
+
+    if usuario is None:
+        return HttpResponseForbidden(
+            "Sua conta não está ativa."
+        )
 
     status_validos = [
         "ABERTO",
@@ -219,6 +228,15 @@ def alterar_status(request, id):
         if novo_status not in status_validos:
             return redirect("detalhe_chamado", id=id)
 
+        # Técnicos não podem reabrir chamados
+        if (
+            usuario.perfil == "TECNICO"
+            and novo_status == "REABERTO"
+        ):
+            return HttpResponseForbidden(
+                "Técnicos não podem reabrir chamados."
+            )
+
         chamado.status = novo_status
 
         if novo_status == "EM_ATENDIMENTO":
@@ -226,12 +244,13 @@ def alterar_status(request, id):
             if chamado.data_inicio is None:
                 chamado.data_inicio = timezone.now()
 
+            chamado.data_encerramento = None
+
         elif novo_status == "ENCERRADO":
 
             chamado.data_encerramento = timezone.now()
 
-        elif novo_status == "REABERTO":
-
+        else:
             chamado.data_encerramento = None
 
         chamado.save()
@@ -240,6 +259,7 @@ def alterar_status(request, id):
 
     contexto = {
         "chamado": chamado,
+        "usuario": usuario,
     }
 
     return render(
@@ -247,7 +267,6 @@ def alterar_status(request, id):
         "chamados/alterar_status.html",
         contexto
     )
-
 
 # =====================================================
 # ADICIONAR RESPOSTA
@@ -301,6 +320,70 @@ def adicionar_resposta(request, id):
         }
     )
 
+# =====================================================
+# SOLICITAR REABERTURA
+# =====================================================
+
+@login_required
+def solicitar_reabertura(request, id):
+
+    chamado = get_object_or_404(Chamado, id=id)
+
+    usuario = Usuario.objects.filter(
+        usuario_login=request.user,
+        ativo=True
+    ).first()
+
+    if usuario is None or usuario.perfil != "SOLICITANTE":
+        return HttpResponseForbidden(
+            "Somente o solicitante pode solicitar a reabertura."
+        )
+
+    if chamado.solicitante != usuario:
+        return HttpResponseForbidden(
+            "Você não tem permissão para reabrir este chamado."
+        )
+
+    if chamado.status != "ENCERRADO":
+        return HttpResponseForbidden(
+            "Somente chamados encerrados podem ser reabertos."
+        )
+
+    erro = None
+
+    if request.method == "POST":
+
+        motivo = request.POST.get("motivo", "").strip()
+
+        if not motivo:
+            erro = "Informe o motivo da reabertura."
+
+        else:
+
+            with transaction.atomic():
+
+                chamado.status = "REABERTO"
+                chamado.data_encerramento = None
+                chamado.save()
+
+                chamado.respostas.create(
+                    usuario=usuario,
+                    mensagem="SOLICITAÇÃO DE REABERTURA: " + motivo
+                )
+
+            return redirect(
+                "detalhe_chamado",
+                id=chamado.id
+            )
+
+    return render(
+        request,
+        "chamados/solicitar_reabertura.html",
+        {
+            "chamado": chamado,
+            "erro": erro,
+        }
+    )
 
 # =====================================================
 # ABRIR CHAMADO
@@ -319,9 +402,7 @@ def abrir_chamado(request):
             id=usuario_logado.id
         )
     else:
-        usuarios = Usuario.objects.all().order_by("nome")
-
-    setores = Setor.objects.all().order_by("nome")
+        usuarios = Usuario.objects.filter(perfil="SOLICITANTE", ativo=True).order_by("nome")
     categorias = Categoria.objects.all().order_by("nome")
 
     erro = None
@@ -331,7 +412,6 @@ def abrir_chamado(request):
         titulo = request.POST.get("titulo", "").strip()
         descricao = request.POST.get("descricao", "").strip()
         solicitante_id = request.POST.get("solicitante")
-        setor_id = request.POST.get("setor")
         categoria_id = request.POST.get("categoria")
         prioridade = request.POST.get("prioridade")
 
@@ -339,13 +419,9 @@ def abrir_chamado(request):
             valor for valor, nome in Chamado.PRIORIDADE_CHOICES
         ]
 
-        if not all([
-            titulo,
-            descricao,
-            setor_id,
-            categoria_id,
-            prioridade
-        ]):
+        solicitante = None
+
+        if not titulo or not descricao or not categoria_id or not prioridade:
             erro = "Preencha todos os campos."
 
         elif usuario_logado.perfil == "SOLICITANTE":
@@ -362,18 +438,18 @@ def abrir_chamado(request):
             if solicitante is None:
                 erro = "Solicitante inválido."
 
-        if erro is None and usuario_logado.perfil == "SOLICITANTE":
-            solicitante = usuario_logado
+        if erro is None:
+
+            if solicitante.setor is None:
+                erro = "O solicitante selecionado não possui um setor cadastrado."
 
         if erro is None:
 
-            setor = Setor.objects.filter(id=setor_id).first()
-            categoria = Categoria.objects.filter(id=categoria_id).first()
+            categoria = Categoria.objects.filter(
+                id=categoria_id
+            ).first()
 
-            if setor is None:
-                erro = "Selecione um setor válido."
-
-            elif categoria is None:
+            if categoria is None:
                 erro = "Selecione uma categoria válida."
 
             elif prioridade not in prioridades_validas:
@@ -385,7 +461,7 @@ def abrir_chamado(request):
                 titulo=titulo,
                 descricao=descricao,
                 solicitante=solicitante,
-                setor=setor,
+                setor=solicitante.setor,
                 categoria=categoria,
                 prioridade=prioridade,
                 status="ABERTO"
@@ -398,18 +474,17 @@ def abrir_chamado(request):
 
     contexto = {
         "usuarios": usuarios,
-        "setores": setores,
         "categorias": categorias,
         "prioridades": Chamado.PRIORIDADE_CHOICES,
         "erro": erro,
         "usuario": usuario_logado,
     }
+
     return render(
         request,
         "chamados/abrir_chamado.html",
         contexto
     )
-
 
 # =====================================================
 # LOGIN

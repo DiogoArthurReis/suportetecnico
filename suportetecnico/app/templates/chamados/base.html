@@ -13,15 +13,40 @@
 <div class="layout">
 
     <aside class="sidebar">
+
         <h2>SUPORTE TÉCNICO</h2>
         <p class="subtitle">Sistema de gerenciamento</p>
 
         <a href="{% url 'dashboard' %}">Dashboard</a>
-        <a href="{% url 'lista_chamados' %}">Chamados</a>
 
-        {% if request.user.is_authenticated %}
-            <a href="{% url 'logout' %}" class="logout">Sair do sistema</a>
+        <a href="{% url 'lista_chamados' %}">
+            {% if request.user.usuario.perfil == "SOLICITANTE" %}
+                Meus chamados
+            {% else %}
+                Chamados
+            {% endif %}
+        </a>
+
+        {% if request.user.usuario.perfil == "ADMINISTRADOR" or request.user.usuario.perfil == "SOLICITANTE" %}
+            <a href="{% url 'abrir_chamado' %}">
+                Abrir chamado
+            </a>
         {% endif %}
+
+        {% if request.user.usuario.perfil == "ADMINISTRADOR" %}
+            <a href="{% url 'lista_usuarios' %}">
+                Usuários
+            </a>
+        {% endif %}
+
+        <div class="sidebar-bottom">
+            {% if request.user.is_authenticated %}
+                <a href="{% url 'logout' %}" class="logout">
+                    Sair do sistema
+                </a>
+            {% endif %}
+        </div>
+
     </aside>
 
     <main class="main">

@@ -101,7 +101,7 @@
         </div>
 
     </div>
-
+        
     <div class="detail-actions">
 
         {% if usuario.perfil == "ADMINISTRADOR" %}
@@ -113,6 +113,12 @@
         {% if usuario.perfil == "ADMINISTRADOR" or usuario.perfil == "TECNICO" %}
             <a href="{% url 'alterar_status' chamado.id %}" class="btn">
                 Alterar status
+            </a>
+        {% endif %}
+
+        {% if usuario.perfil == "SOLICITANTE" and chamado.solicitante == usuario and chamado.status == "ENCERRADO" %}
+            <a href="{% url 'solicitar_reabertura' chamado.id %}" class="btn">
+                Solicitar reabertura
             </a>
         {% endif %}
 
@@ -132,16 +138,31 @@
 
     <h2>Histórico de respostas</h2>
 
+
     {% for resposta in chamado.respostas.all %}
 
         <div class="response">
 
             <div class="response-header">
-                <strong>{{ resposta.usuario.nome }}</strong>
+
+                <div>
+                    <strong>{{ resposta.usuario.nome }}</strong>
+
+                    {% if resposta.usuario.perfil == "ADMINISTRADOR" %}
+                        <span class="response-role role-admin">Administrador</span>
+
+                    {% elif resposta.usuario.perfil == "TECNICO" %}
+                        <span class="response-role role-tecnico">Técnico</span>
+
+                    {% elif resposta.usuario.perfil == "SOLICITANTE" %}
+                        <span class="response-role role-solicitante">Solicitante</span>
+                    {% endif %}
+                </div>
 
                 <span class="response-date">
                     {{ resposta.data|date:"d/m/Y H:i" }}
                 </span>
+
             </div>
 
             <div class="description">
@@ -158,6 +179,7 @@
         </div>
 
     {% endfor %}
+
 
 </div>
 
