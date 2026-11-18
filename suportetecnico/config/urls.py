@@ -1,6 +1,5 @@
-
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from app.views import (
     dashboard,
@@ -17,10 +16,18 @@ from app.views import (
     cadastrar_usuario,
     editar_usuario,
     alterar_ativo_usuario,
+    relatorios,
+    base_conhecimento,
+    detalhe_artigo,
+    gerenciar_artigos,
+    cadastrar_artigo,
+    editar_artigo,
+    excluir_artigo
 )
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("ckeditor5/", include("django_ckeditor_5.urls")),
     path("", dashboard, name="dashboard"),
     path("chamados/", lista_chamados, name="lista_chamados"),
     path("chamados/<int:id>/", detalhe_chamado, name="detalhe_chamado"),
@@ -35,4 +42,11 @@ urlpatterns = [
     path("usuarios/cadastrar/", cadastrar_usuario, name="cadastrar_usuario"),
     path("usuarios/<int:id>/editar/", editar_usuario, name="editar_usuario"),
     path("usuarios/<int:id>/alterar-ativo/", alterar_ativo_usuario, name="alterar_ativo_usuario"),
+    path("relatorios/", relatorios, name="relatorios"),
+    path("base-conhecimento/", base_conhecimento, name="base_conhecimento"),
+    path("base-conhecimento/<int:id>/", detalhe_artigo, name="detalhe_artigo"),
+    path("base-conhecimento/gerenciar/", gerenciar_artigos, name="gerenciar_artigos"),
+    path("base-conhecimento/cadastrar/", cadastrar_artigo, name="cadastrar_artigo"),
+    path("base-conhecimento/<int:id>/editar/", editar_artigo, name="editar_artigo"),
+    path("base-conhecimento/<int:id>/excluir/", excluir_artigo, name="excluir_artigo"),
 ]

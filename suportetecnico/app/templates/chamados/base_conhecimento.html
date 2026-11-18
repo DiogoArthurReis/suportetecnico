@@ -1,0 +1,107 @@
+
+{% extends 'chamados/base.html' %}
+{% load artigo_filters %}
+
+{% block title %}Base de Conhecimento | Suporte Técnico{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Base de Conhecimento</h1>
+        <p>Consulte tutoriais, orientações e soluções para problemas frequentes.</p>
+    </div>
+
+    {% if usuario.perfil == "ADMINISTRADOR" %}
+        <a href="{% url 'gerenciar_artigos' %}" class="btn">
+            Gerenciar artigos
+        </a>
+    {% endif %}
+</div>
+
+<div class="search-panel">
+
+    <div class="search-title">
+        <h2>Pesquisar artigos</h2>
+        <p>Encontre rapidamente tutoriais e soluções para suas dúvidas.</p>
+    </div>
+
+    <form method="GET">
+
+        <div class="search-main">
+            <label for="busca">Pesquisa</label>
+
+            <input
+                type="text"
+                id="busca"
+                name="busca"
+                value="{{ busca }}"
+                placeholder="Digite o título ou assunto do artigo..."
+            >
+        </div>
+
+        <div class="search-buttons">
+
+            <a href="{% url 'base_conhecimento' %}" class="btn btn-secondary">
+                Limpar pesquisa
+            </a>
+
+            <button type="submit" class="btn">
+                Pesquisar
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+<div class="section knowledge-section">
+
+    <h2>Artigos disponíveis</h2>
+
+    <div class="knowledge-list">
+
+        {% for artigo in artigos %}
+
+            <div class="knowledge-article">
+
+                <div class="knowledge-article-header">
+                    <h3>{{ artigo.titulo }}</h3>
+
+                    {% if artigo.categoria %}
+                        <span class="knowledge-category">
+                            {{ artigo.categoria.nome }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="knowledge-excerpt">
+                    {{ artigo.conteudo|resumo_artigo|truncatewords:30 }}
+                </div>
+
+                <div class="knowledge-article-footer">
+
+                    <small>
+                        Publicado em {{ artigo.data_criacao|date:"d/m/Y" }}
+                    </small>
+
+                    <a href="{% url 'detalhe_artigo' artigo.id %}" class="btn">
+                        Ler artigo
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <p>Nenhum artigo encontrado.</p>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

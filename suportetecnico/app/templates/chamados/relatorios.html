@@ -1,0 +1,247 @@
+
+{% extends 'chamados/base.html' %}
+
+{% block title %}Relatórios | Suporte Técnico{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Relatórios</h1>
+        <p>Visualize os indicadores e dados dos chamados.</p>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Filtrar por período</h2>
+
+    <form method="GET" class="report-filter">
+        <div class="filter-field">
+            <label for="data_inicio">Data inicial:</label>
+            <input
+                type="date"
+                name="data_inicio"
+                id="data_inicio"
+                value="{{ data_inicio }}"
+            >
+        </div>
+    
+        <div class="filter-field">
+            <label for="data_fim">Data final:</label>
+            <input
+                type="date"
+                name="data_fim"
+                id="data_fim"
+                value="{{ data_fim }}"
+            >
+        </div>
+    
+        <button type="submit">Filtrar</button>
+    
+        <a href="{% url 'relatorios' %}" class="clear-filter">
+            Limpar filtros
+        </a>
+    </form>
+</div>
+
+<div class="section">
+    <h2>Indicadores gerais</h2>
+
+    <div class="reports-stats">
+        <div class="reports-stat-card">
+            <h3>Total de chamados</h3>
+            <p>{{ total }}</p>
+        </div>
+
+        <div class="reports-stat-card">
+            <h3>Abertos</h3>
+            <p>{{ abertos }}</p>
+        </div>
+
+        <div class="reports-stat-card">
+            <h3>Em atendimento</h3>
+            <p>{{ em_atendimento }}</p>
+        </div>
+
+        <div class="reports-stat-card">
+            <h3>Reabertos</h3>
+            <p>{{ reabertos }}</p>
+        </div>
+
+        <div class="reports-stat-card">
+            <h3>Encerrados</h3>
+            <p>{{ encerrados }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="reports-charts">
+
+    <div class="report-chart">
+        <h2>Chamados por status</h2>
+        <div class="chart-container">
+            <canvas id="graficoStatus"></canvas>
+        </div>
+    </div>
+
+    <div class="report-chart">
+        <h2>Chamados por prioridade</h2>
+        <div class="chart-container">
+            <canvas id="graficoPrioridade"></canvas>
+        </div>
+    </div>
+
+    <div class="report-chart">
+        <h2>Chamados por categoria</h2>
+        <div class="chart-container">
+            <canvas id="graficoCategoria"></canvas>
+        </div>
+    </div>
+
+    <div class="report-chart">
+        <h2>Chamados por técnico</h2>
+        <div class="chart-container">
+            <canvas id="graficoTecnico"></canvas>
+        </div>
+    </div>
+
+</div>
+
+{{ por_status|json_script:"dados-status" }}
+{{ por_prioridade|json_script:"dados-prioridade" }}
+{{ por_categoria|json_script:"dados-categoria" }}
+{{ por_tecnico|json_script:"dados-tecnico" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const dadosStatus = JSON.parse(
+        document.getElementById("dados-status").textContent
+    );
+
+    const dadosPrioridade = JSON.parse(
+        document.getElementById("dados-prioridade").textContent
+    );
+
+    const dadosCategoria = JSON.parse(
+        document.getElementById("dados-categoria").textContent
+    );
+
+    const dadosTecnico = JSON.parse(
+        document.getElementById("dados-tecnico").textContent
+    );
+
+    // Gráfico de pizza: chamados por status
+    new Chart(document.getElementById("graficoStatus"), {
+        type: "pie",
+        data: {
+            labels: dadosStatus.map(item => ({
+                "ABERTO": "Aberto",
+                "EM_ATENDIMENTO": "Em atendimento",
+                "ENCERRADO": "Encerrado",
+                "REABERTO": "Reaberto"
+            })[item.status] || item.status),
+            datasets: [{
+                data: dadosStatus.map(item => item.quantidade),
+                backgroundColor: [
+                    "#3498db",
+                    "#f39c12",
+                    "#2ecc71",
+                    "#9b59b6"
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            }
+        }
+    });
+
+    // Gráfico de pizza: chamados por prioridade
+    new Chart(document.getElementById("graficoPrioridade"), {
+        type: "pie",
+        data: {
+            labels: dadosPrioridade.map(item => ({
+                "BAIXA": "Baixa",
+                "MEDIA": "Média",
+                "ALTA": "Alta",
+                "URGENTE": "Urgente"
+            })[item.prioridade] || item.prioridade),
+            datasets: [{
+                data: dadosPrioridade.map(item => item.quantidade),
+                backgroundColor: [
+                    "#2ecc71",
+                    "#3498db",
+                    "#f39c12",
+                    "#e74c3c"
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            }
+        }
+    });
+
+    // Gráfico de barras: chamados por categoria
+    new Chart(document.getElementById("graficoCategoria"), {
+        type: "bar",
+        data: {
+            labels: dadosCategoria.map(item => item["categoria__nome"]),
+            datasets: [{
+                label: "Quantidade de chamados",
+                data: dadosCategoria.map(item => item.quantidade),
+                backgroundColor: "#3498db"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+    // Gráfico de barras: chamados por técnico
+    new Chart(document.getElementById("graficoTecnico"), {
+        type: "bar",
+        data: {
+            labels: dadosTecnico.map(item => item["tecnico__nome"]),
+            datasets: [{
+                label: "Chamados atribuídos",
+                data: dadosTecnico.map(item => item.quantidade),
+                backgroundColor: "#9b59b6"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+{% endblock %}

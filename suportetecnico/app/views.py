@@ -1,6 +1,6 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Chamado, Usuario, Setor, Categoria
+from .models import Chamado, Usuario, Setor, Categoria, Artigo
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -10,7 +10,12 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError, transaction
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
-
+from django.db.models import Q
+from django.db.models import Count
+from datetime import datetime, time, timedelta
+from django.contrib import messages
+from django.shortcuts import redirect
+from .forms import ArtigoForm
 
 # =====================================================
 # DECORADOR DE PERMISSÕES
@@ -79,7 +84,6 @@ def dashboard(request):
         contexto
     )
 
-
 # =====================================================
 # LISTA DE CHAMADOS
 # =====================================================
@@ -98,12 +102,66 @@ def lista_chamados(request):
 
     chamados = Chamado.objects.all().order_by("-data_abertura")
 
+    # Solicitantes visualizam somente os próprios chamados
     if usuario.perfil == "SOLICITANTE":
         chamados = chamados.filter(solicitante=usuario)
 
+    # Pesquisa por número, título ou solicitante
+    busca = request.GET.get("busca", "").strip()
+
+    if busca:
+
+        pesquisa = Q(titulo__icontains=busca) | Q(
+            solicitante__nome__icontains=busca
+        )
+
+        if busca.isdigit():
+            pesquisa |= Q(id=int(busca))
+
+        chamados = chamados.filter(pesquisa)
+
+    # Filtro por status
+    status_selecionado = request.GET.get("status", "")
+
+    status_validos = [
+        "ABERTO",
+        "EM_ATENDIMENTO",
+        "ENCERRADO",
+        "REABERTO"
+    ]
+
+    if status_selecionado in status_validos:
+        chamados = chamados.filter(status=status_selecionado)
+
+    # Filtro por prioridade
+    prioridade_selecionada = request.GET.get("prioridade", "")
+
+    prioridades_validas = [
+        valor for valor, nome in Chamado.PRIORIDADE_CHOICES
+    ]
+
+    if prioridade_selecionada in prioridades_validas:
+        chamados = chamados.filter(
+            prioridade=prioridade_selecionada
+        )
+
+    # Filtro por categoria
+    categoria_selecionada = request.GET.get("categoria", "")
+
+    if categoria_selecionada.isdigit():
+        chamados = chamados.filter(
+            categoria_id=int(categoria_selecionada)
+        )
+
     contexto = {
         "chamados": chamados,
-        "usuario": usuario
+        "usuario": usuario,
+        "categorias": Categoria.objects.all().order_by("nome"),
+        "prioridades": Chamado.PRIORIDADE_CHOICES,
+        "busca": busca,
+        "status_selecionado": status_selecionado,
+        "prioridade_selecionada": prioridade_selecionada,
+        "categoria_selecionada": categoria_selecionada,
     }
 
     return render(
@@ -111,7 +169,6 @@ def lista_chamados(request):
         "chamados/chamados.html",
         contexto
     )
-
 
 # =====================================================
 # DETALHES DO CHAMADO
@@ -781,3 +838,264 @@ def alterar_ativo_usuario(request, id):
         usuario.usuario_login.save()
 
     return redirect("lista_usuarios")
+
+# =====================================================
+# RELATORIOS
+# =====================================================
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def relatorios(request):
+    chamados = Chamado.objects.all()
+
+    data_inicio = request.GET.get("data_inicio")
+    data_fim = request.GET.get("data_fim")
+
+    if data_inicio:
+        chamados = chamados.filter(data_abertura__date__gte=data_inicio)
+
+    if data_fim:
+        chamados = chamados.filter(data_abertura__date__lte=data_fim)
+
+    total = chamados.count()
+
+    abertos = chamados.filter(status="ABERTO").count()
+    em_atendimento = chamados.filter(status="EM_ATENDIMENTO").count()
+    reabertos = chamados.filter(status="REABERTO").count()
+    encerrados = chamados.filter(status="ENCERRADO").count()
+
+    por_status = list(chamados.values("status").annotate(
+        quantidade=Count("id")
+    ).order_by("status"))
+
+    por_prioridade = list(chamados.values("prioridade").annotate(
+        quantidade=Count("id")
+    ).order_by("prioridade"))
+
+    por_categoria = list(chamados.values("categoria__nome").annotate(
+        quantidade=Count("id")
+    ).order_by("-quantidade"))
+
+    por_tecnico = list(chamados.filter(
+        tecnico__isnull=False
+    ).values("tecnico__nome").annotate(
+        quantidade=Count("id")
+    ).order_by("-quantidade"))
+
+    contexto = {
+        "total": total,
+        "abertos": abertos,
+        "em_atendimento": em_atendimento,
+        "reabertos": reabertos,
+        "encerrados": encerrados,
+        "por_status": por_status,
+        "por_prioridade": por_prioridade,
+        "por_categoria": por_categoria,
+        "por_tecnico": por_tecnico,
+        "data_inicio": data_inicio,
+        "data_fim": data_fim,
+    }
+
+    return render(request, "chamados/relatorios.html", contexto)
+
+# =====================================================
+# BASE DE CONHECIMENTO
+# =====================================================
+
+@login_required
+def base_conhecimento(request):
+
+    usuario = Usuario.objects.filter(
+        usuario_login=request.user
+    ).first()
+
+    if usuario is None or not usuario.ativo:
+        return HttpResponseForbidden(
+            "Sua conta não está ativa ou vinculada ao sistema."
+        )
+
+    artigos = Artigo.objects.filter(
+        publicado=True
+    ).select_related(
+        "categoria",
+        "autor"
+    )
+
+    busca = request.GET.get("busca", "").strip()
+
+    if busca:
+        artigos = artigos.filter(
+            Q(titulo__icontains=busca) |
+            Q(conteudo__icontains=busca)
+        )
+
+    contexto = {
+        "usuario": usuario,
+        "artigos": artigos,
+        "busca": busca,
+    }
+
+    return render(
+        request,
+        "chamados/base_conhecimento.html",
+        contexto
+    )
+
+@login_required
+def detalhe_artigo(request, id):
+
+    usuario = Usuario.objects.filter(
+        usuario_login=request.user
+    ).first()
+
+    if usuario is None or not usuario.ativo:
+        return HttpResponseForbidden(
+            "Sua conta não está ativa ou vinculada ao sistema."
+        )
+
+    artigo = get_object_or_404(
+        Artigo,
+        id=id,
+        publicado=True
+    )
+
+    contexto = {
+        "usuario": usuario,
+        "artigo": artigo,
+    }
+
+    return render(
+        request,
+        "chamados/artigo_detalhe.html",
+        contexto
+    )
+
+
+# =====================================================
+# GERENCIAMENTO DA BASE DE CONHECIMENTO
+# =====================================================
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def gerenciar_artigos(request):
+
+    artigos = Artigo.objects.all().select_related(
+        "categoria",
+        "autor"
+    )
+
+    busca = request.GET.get("busca", "").strip()
+
+    if busca:
+        artigos = artigos.filter(
+            Q(titulo__icontains=busca) |
+            Q(conteudo__icontains=busca)
+        )
+
+    contexto = {
+        "artigos": artigos,
+        "busca": busca,
+    }
+
+    return render(
+        request,
+        "chamados/gerenciar_artigos.html",
+        contexto
+    )
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def cadastrar_artigo(request):
+
+    usuario = Usuario.objects.filter(
+        usuario_login=request.user
+    ).first()
+
+    form = ArtigoForm(request.POST or None)
+
+    if request.method == "POST":
+
+        if form.is_valid():
+
+            artigo = form.save(commit=False)
+            artigo.autor = usuario
+            artigo.save()
+
+            messages.success(
+                request,
+                "Artigo cadastrado com sucesso!"
+            )
+
+            return redirect("gerenciar_artigos")
+
+    contexto = {
+        "form": form,
+    }
+
+    return render(
+        request,
+        "chamados/cadastrar_artigo.html",
+        contexto
+    )
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def editar_artigo(request, id):
+
+    artigo = get_object_or_404(
+        Artigo,
+        id=id
+    )
+
+    form = ArtigoForm(
+        request.POST or None,
+        instance=artigo
+    )
+
+    if request.method == "POST":
+
+        if form.is_valid():
+
+            form.save()
+
+            messages.success(
+                request,
+                "Artigo atualizado com sucesso!"
+            )
+
+            return redirect("gerenciar_artigos")
+
+    contexto = {
+        "form": form,
+        "artigo": artigo,
+    }
+
+    return render(
+        request,
+        "chamados/editar_artigo.html",
+        contexto
+    )
+
+# =====================================================
+# EXCLUIR ARTIGO
+# =====================================================
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def excluir_artigo(request, id):
+
+    artigo = get_object_or_404(
+        Artigo,
+        id=id
+    )
+
+    if request.method == "POST":
+
+        artigo.delete()
+
+        messages.success(
+            request,
+            "Artigo excluído com sucesso!"
+        )
+
+        return redirect("gerenciar_artigos")
+
+    return redirect("gerenciar_artigos")

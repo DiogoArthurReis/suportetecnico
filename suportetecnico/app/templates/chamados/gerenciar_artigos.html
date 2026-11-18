@@ -1,0 +1,149 @@
+
+{% extends 'chamados/base.html' %}
+
+{% load artigo_filters %}
+
+{% block title %}Gerenciar Artigos | Suporte Técnico{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Gerenciar Artigos</h1>
+        <p>Cadastre, edite e organize os artigos da Base de Conhecimento.</p>
+    </div>
+
+    <a href="{% url 'cadastrar_artigo' %}" class="btn">
+        + Novo Artigo
+    </a>
+</div>
+
+<div class="section">
+
+    <div class="search-panel">
+
+        <div class="search-title">
+            <h2>Pesquisar artigos</h2>
+            <p>Encontre artigos pelo título ou conteúdo.</p>
+        </div>
+
+        <form method="GET">
+
+            <div class="search-main">
+                <label for="busca">Pesquisa</label>
+
+                <input
+                    type="text"
+                    id="busca"
+                    name="busca"
+                    value="{{ busca }}"
+                    placeholder="Digite o título ou assunto do artigo..."
+                >
+            </div>
+
+            <div class="search-buttons">
+
+                <a href="{% url 'gerenciar_artigos' %}" class="btn btn-secondary">
+                    Limpar pesquisa
+                </a>
+
+                <button type="submit" class="btn">
+                    Pesquisar
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<div class="section knowledge-section">
+
+    <h2>Artigos cadastrados</h2>
+
+    <div class="knowledge-list">
+
+        {% for artigo in artigos %}
+
+            <div class="knowledge-article">
+
+                <div class="knowledge-article-header">
+
+                    <h3>{{ artigo.titulo }}</h3>
+
+                    {% if artigo.publicado %}
+                        <span class="knowledge-category">
+                            Publicado
+                        </span>
+                    {% else %}
+                        <span class="knowledge-category">
+                            Rascunho
+                        </span>
+                    {% endif %}
+
+                </div>
+
+                {% if artigo.categoria %}
+                    <p class="knowledge-excerpt">
+                        Categoria: {{ artigo.categoria.nome }}
+                    </p>
+                {% endif %}
+
+                <p class="knowledge-excerpt">
+                    {{ artigo.conteudo|resumo_artigo|truncatewords:25 }}
+                </p>
+
+                <div class="knowledge-article-footer">
+
+                    <small>
+                        Cadastrado em {{ artigo.data_criacao|date:"d/m/Y" }}
+                    </small>
+
+                    <div class="article-management-actions">
+
+                        <a
+                            href="{% url 'detalhe_artigo' artigo.id %}"
+                            class="btn btn-secondary"
+                        >
+                            Visualizar
+                        </a>
+
+                        <a
+                            href="{% url 'editar_artigo' artigo.id %}"
+                            class="btn"
+                        >
+                            Editar
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{% url 'excluir_artigo' artigo.id %}"
+                            onsubmit="return confirm('Tem certeza de que deseja excluir este artigo? Esta ação não poderá ser desfeita.');"
+                        >
+                            {% csrf_token %}
+
+                            <button type="submit" class="btn btn-delete">
+                                Excluir
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        {% empty %}
+
+            <p>Nenhum artigo cadastrado.</p>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}

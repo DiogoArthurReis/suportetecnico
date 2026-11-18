@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django_ckeditor_5.fields import CKEditor5Field
 
 class Setor(models.Model):
     nome =  models.CharField(max_length=100, verbose_name="Nome do Setor")
@@ -162,3 +163,53 @@ class Resposta(models.Model):
     class Meta:
         verbose_name = "Resposta"
         verbose_name_plural = "Respostas"
+
+class Artigo(models.Model):
+
+    titulo = models.CharField(
+        max_length=150,
+        verbose_name="Título"
+    )
+
+    conteudo = CKEditor5Field(
+        verbose_name="Conteúdo",
+        config_name="default"
+    )
+
+    categoria = models.ForeignKey(
+        Categoria,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Categoria"
+    )
+
+    autor = models.ForeignKey(
+        Usuario,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name="Autor"
+    )
+
+    data_criacao = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Data de criação"
+    )
+
+    data_atualizacao = models.DateTimeField(
+        auto_now=True,
+        verbose_name="Última atualização"
+    )
+
+    publicado = models.BooleanField(
+        default=False,
+        verbose_name="Publicado?"
+    )
+
+    def __str__(self):
+        return self.titulo
+
+    class Meta:
+        verbose_name = "Artigo"
+        verbose_name_plural = "Artigos"
+        ordering = ["-data_criacao"]

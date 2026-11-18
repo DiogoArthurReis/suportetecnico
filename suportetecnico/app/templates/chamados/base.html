@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sistema de Chamados{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/style.css' %}?v=4">
 </head>
 <body>
 
@@ -27,6 +27,9 @@
             {% endif %}
         </a>
 
+        <a href="{% url 'base_conhecimento' %}">
+            Base de Conhecimento
+        </a>
         {% if request.user.usuario.perfil == "ADMINISTRADOR" or request.user.usuario.perfil == "SOLICITANTE" %}
             <a href="{% url 'abrir_chamado' %}">
                 Abrir chamado
@@ -36,6 +39,10 @@
         {% if request.user.usuario.perfil == "ADMINISTRADOR" %}
             <a href="{% url 'lista_usuarios' %}">
                 Usuários
+            </a>
+
+            <a href="{% url 'relatorios' %}">
+                Relatórios
             </a>
         {% endif %}
 

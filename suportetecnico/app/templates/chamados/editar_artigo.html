@@ -1,0 +1,81 @@
+{% extends 'chamados/base.html' %}
+
+{% block title %}Editar Artigo | Suporte Técnico{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Editar Artigo</h1>
+        <p>Atualize as informações e o conteúdo do artigo.</p>
+    </div>
+</div>
+
+<div class="article-form-container">
+
+    <form method="POST" class="article-form">
+
+        {% csrf_token %}
+
+        <div class="article-form-section">
+
+            <h2>Informações do artigo</h2>
+            <p>Altere o título e a categoria do conteúdo.</p>
+
+            <div class="article-field">
+                <label for="id_titulo">Título do artigo</label>
+                {{ form.titulo }}
+            </div>
+
+            <div class="article-field">
+                <label for="id_categoria">Categoria</label>
+                {{ form.categoria }}
+            </div>
+
+        </div>
+
+        <div class="article-form-section">
+
+            <h2>Conteúdo</h2>
+            <p>Edite e formate o artigo utilizando o editor abaixo.</p>
+
+            <div class="article-field">
+                <label for="id_conteudo">Conteúdo do artigo</label>
+                {{ form.conteudo }}
+            </div>
+
+        </div>
+
+        <div class="article-publication">
+
+            <div>
+                <strong>Publicação do artigo</strong>
+                <p>Defina se o artigo ficará disponível para os usuários.</p>
+            </div>
+
+            <label class="article-checkbox">
+                {{ form.publicado }}
+                <span>Publicar artigo imediatamente</span>
+            </label>
+
+        </div>
+
+        <div class="article-form-actions">
+
+            <a href="{% url 'gerenciar_artigos' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+
+            <button type="submit" class="btn">
+                Salvar alterações
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+{{ form.media }}
+
+{% endblock %}

@@ -18,67 +18,161 @@
     {% endif %}
 </div>
 
+<!-- PESQUISA E FILTROS -->
+
+<div class="search-panel">
+
+    <div class="search-title">
+        <h2>Pesquisar chamados</h2>
+        <p>Encontre rapidamente um chamado utilizando os campos abaixo.</p>
+    </div>
+
+    <form method="GET">
+
+        <div class="search-main">
+            <label for="busca">Pesquisa</label>
+
+            <input
+                type="text"
+                id="busca"
+                name="busca"
+                value="{{ busca }}"
+                placeholder="Digite o número, título ou nome do solicitante..."
+            >
+        </div>
+
+        <div class="search-filters">
+
+            <div class="form-group">
+                <label for="status">Status</label>
+
+                <select id="status" name="status">
+                    <option value="">Todos os status</option>
+                    <option value="ABERTO" {% if status_selecionado == "ABERTO" %}selected{% endif %}>Aberto</option>
+                    <option value="EM_ATENDIMENTO" {% if status_selecionado == "EM_ATENDIMENTO" %}selected{% endif %}>Em atendimento</option>
+                    <option value="REABERTO" {% if status_selecionado == "REABERTO" %}selected{% endif %}>Reaberto</option>
+                    <option value="ENCERRADO" {% if status_selecionado == "ENCERRADO" %}selected{% endif %}>Encerrado</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="prioridade">Prioridade</label>
+
+                <select id="prioridade" name="prioridade">
+                    <option value="">Todas as prioridades</option>
+
+                    {% for valor, nome in prioridades %}
+                        <option value="{{ valor }}" {% if prioridade_selecionada == valor %}selected{% endif %}>
+                            {{ nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="categoria">Categoria</label>
+
+                <select id="categoria" name="categoria">
+                    <option value="">Todas as categorias</option>
+
+                    {% for categoria in categorias %}
+                        <option value="{{ categoria.id }}" {% if categoria_selecionada == categoria.id|stringformat:"s" %}selected{% endif %}>
+                            {{ categoria.nome }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+        </div>
+
+        <div class="search-buttons">
+
+            <a href="{% url 'lista_chamados' %}" class="btn btn-secondary">
+                Limpar filtros
+            </a>
+
+            <button type="submit" class="btn">
+                Pesquisar
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- TABELA DE CHAMADOS -->
+
 <div class="table-container">
 
     {% if chamados %}
 
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Chamado</th>
-                <th>Solicitante</th>
-                <th>Setor</th>
-                <th>Categoria</th>
-                <th>Prioridade</th>
-                <th>Status</th>
-                <th>Data de abertura</th>
-            </tr>
-        </thead>
+        <table class="data-table">
 
-        <tbody>
-            {% for chamado in chamados %}
-            <tr>
-                <td>
-                    <a href="{% url 'detalhe_chamado' chamado.id %}" class="table-link">
-                        #{{ chamado.id }} - {{ chamado.titulo }}
-                    </a>
-                </td>
+            <thead>
+                <tr>
+                    <th>Chamado</th>
+                    <th>Solicitante</th>
+                    <th>Setor</th>
+                    <th>Categoria</th>
+                    <th>Prioridade</th>
+                    <th>Status</th>
+                    <th>Data de abertura</th>
+                </tr>
+            </thead>
 
-                <td>{{ chamado.solicitante.nome }}</td>
-                <td>{{ chamado.setor.nome }}</td>
-                <td>{{ chamado.categoria.nome }}</td>
+            <tbody>
 
-                <td>
-                    <span class="priority priority-{{ chamado.prioridade|lower }}">
-                        {{ chamado.get_prioridade_display }}
-                    </span>
-                </td>
+                {% for chamado in chamados %}
 
-                <td>
-                    {% if chamado.status == "ABERTO" %}
-                        <span class="status status-aberto">Aberto</span>
-                    {% elif chamado.status == "EM_ATENDIMENTO" %}
-                        <span class="status status-atendimento">Em atendimento</span>
-                    {% elif chamado.status == "ENCERRADO" %}
-                        <span class="status status-encerrado">Encerrado</span>
-                    {% elif chamado.status == "REABERTO" %}
-                        <span class="status status-reaberto">Reaberto</span>
-                    {% else %}
-                        {{ chamado.get_status_display }}
-                    {% endif %}
-                </td>
+                    <tr>
+                        <td>
+                            <a href="{% url 'detalhe_chamado' chamado.id %}" class="table-link">
+                                #{{ chamado.id }} - {{ chamado.titulo }}
+                            </a>
+                        </td>
 
-                <td>{{ chamado.data_abertura|date:"d/m/Y H:i" }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                        <td>{{ chamado.solicitante.nome }}</td>
+                        <td>{{ chamado.setor.nome }}</td>
+                        <td>{{ chamado.categoria.nome }}</td>
+
+                        <td>
+                            <span class="priority priority-{{ chamado.prioridade|lower }}">
+                                {{ chamado.get_prioridade_display }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if chamado.status == "ABERTO" %}
+                                <span class="status status-aberto">Aberto</span>
+                            {% elif chamado.status == "EM_ATENDIMENTO" %}
+                                <span class="status status-atendimento">Em atendimento</span>
+                            {% elif chamado.status == "ENCERRADO" %}
+                                <span class="status status-encerrado">Encerrado</span>
+                            {% elif chamado.status == "REABERTO" %}
+                                <span class="status status-reaberto">Reaberto</span>
+                            {% else %}
+                                {{ chamado.get_status_display }}
+                            {% endif %}
+                        </td>
+
+                        <td>{{ chamado.data_abertura|date:"d/m/Y H:i" }}</td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
 
     {% else %}
 
         <div class="empty-state">
             <h3>Nenhum chamado encontrado</h3>
-            <p>Não existem chamados para exibir no momento.</p>
+            <p>
+                Não existem chamados correspondentes à sua pesquisa
+                ou aos filtros selecionados.
+            </p>
         </div>
 
     {% endif %}

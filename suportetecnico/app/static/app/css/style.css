@@ -929,3 +929,709 @@ body {
 .sidebar-bottom .logout {
     display: block;
 }
+
+
+/* =========================================
+   PESQUISA DE CHAMADOS
+========================================= */
+
+.search-panel {
+    background: white;
+    max-width: 1100px;
+    margin: 0 auto 28px;
+    padding: 30px;
+    border: 1px solid #e8edf4;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+.search-title {
+    margin-bottom: 25px;
+}
+
+.search-title h2 {
+    font-size: 19px;
+    color: #263449;
+    margin-bottom: 7px;
+}
+
+.search-title p {
+    font-size: 13px;
+    color: #718096;
+}
+
+.search-main {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 22px;
+}
+
+.search-main label,
+.search-panel .form-group label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #52647a;
+}
+
+.search-main input {
+    width: 100%;
+    height: 47px;
+    padding: 0 15px;
+    border: 1px solid #dce3ed;
+    border-radius: 8px;
+    background: #fbfcfe;
+    color: #263449;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    outline: none;
+}
+
+.search-main input:focus {
+    border-color: #2463a6;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(36, 99, 166, 0.10);
+}
+
+.search-main input::placeholder {
+    color: #9aa6b5;
+}
+
+.search-filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.search-panel .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+}
+
+.search-panel .form-group select {
+    width: 100%;
+    height: 46px;
+    padding: 0 12px;
+    border: 1px solid #dce3ed;
+    border-radius: 8px;
+    background: #fbfcfe;
+    color: #263449;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+}
+
+.search-panel .form-group select:focus {
+    border-color: #2463a6;
+    box-shadow: 0 0 0 3px rgba(36, 99, 166, 0.10);
+}
+
+.search-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #edf0f5;
+}
+
+.search-buttons .btn {
+    padding: 11px 18px;
+    font-size: 13px;
+}
+
+@media (max-width: 850px) {
+    .search-panel {
+        padding: 24px;
+    }
+
+    .search-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 550px) {
+    .search-panel {
+        padding: 20px;
+    }
+
+    .search-filters {
+        grid-template-columns: 1fr;
+    }
+
+    .search-buttons {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .search-buttons .btn {
+        text-align: center;
+    }
+}
+/* =========================================
+   RELATÓRIOS
+========================================= */
+
+.reports-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.reports-stat-card {
+    background: white;
+    padding: 22px;
+    border: 1px solid #e8edf4;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+.reports-stat-card h3 {
+    color: #718096;
+    font-size: 13px;
+    font-weight: normal;
+    margin-bottom: 12px;
+}
+
+.reports-stat-card p {
+    color: #172b4d;
+    font-size: 29px;
+    font-weight: bold;
+}
+
+.reports-charts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+    margin-top: 25px;
+}
+
+.report-chart {
+    background: white;
+    padding: 25px;
+    border: 1px solid #e8edf4;
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+    min-width: 0;
+}
+
+.report-chart h2 {
+    color: #263449;
+    font-size: 17px;
+    margin-bottom: 22px;
+}
+
+.chart-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+.report-chart canvas {
+    max-width: 100%;
+}
+
+@media (max-width: 850px) {
+    .reports-charts {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 550px) {
+    .reports-stat-card {
+        padding: 18px;
+    }
+
+    .reports-stat-card p {
+        font-size: 25px;
+    }
+
+    .report-chart {
+        padding: 18px;
+    }
+
+    .chart-container {
+        height: 260px;
+    }
+}
+/* =========================================
+   FILTRO DE RELATÓRIOS
+========================================= */
+
+.report-filter {
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.report-filter .filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.report-filter label {
+    color: #4a5568;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.report-filter input[type="date"] {
+    padding: 10px 12px;
+    border: 1px solid #dce2ea;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #263449;
+    background: white;
+    outline: none;
+}
+
+.report-filter input[type="date"]:focus {
+    border-color: #3498db;
+}
+
+.report-filter button {
+    padding: 11px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #3498db;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.report-filter button:hover {
+    background: #2980b9;
+}
+
+.report-filter .clear-filter {
+    padding: 11px 15px;
+    color: #64748b;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.report-filter .clear-filter:hover {
+    color: #263449;
+}
+/* =========================================
+   AJUSTE GERAL DE LARGURA
+========================================= */
+
+body {
+    margin: 0;
+    width: 100%;
+}
+
+.layout {
+    display: flex;
+    width: 100%;
+    max-width: none;
+    min-height: 100vh;
+}
+
+.sidebar {
+    box-sizing: border-box;
+    flex: 0 0 250px;
+    width: 250px;
+}
+
+.main {
+    box-sizing: border-box;
+    flex: 1;
+    min-width: 0;
+    width: calc(100% - 250px);
+    padding: 30px clamp(24px, 3vw, 48px);
+}
+
+/* =========================================
+   CENTRALIZAÇÃO DO FORMULÁRIO DE CHAMADO
+========================================= */
+
+.form-container {
+    max-width: 850px;
+    width: 100%;
+    margin: 25px auto;
+    box-sizing: border-box;
+}
+
+/* =====================================
+   BASE DE CONHECIMENTO
+===================================== */
+
+.knowledge-section {
+    margin-top: 30px;
+}
+
+.knowledge-section h2 {
+    margin-bottom: 22px;
+    color: #1f2937;
+    font-size: 21px;
+}
+
+.knowledge-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+}
+
+.knowledge-article {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-height: 210px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
+}
+
+.knowledge-article:hover {
+    border-color: #bfdbfe;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07);
+    transform: translateY(-3px);
+}
+
+.knowledge-article-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.knowledge-article-header h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.knowledge-category {
+    display: inline-block;
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.knowledge-excerpt {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.knowledge-article-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.knowledge-article-footer small {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.knowledge-article-footer .btn {
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+
+/* =====================================
+   LEITURA DOS ARTIGOS
+===================================== */
+
+.knowledge-detail {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 32px;
+    margin-top: 25px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.knowledge-detail-header {
+    padding-bottom: 22px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.knowledge-detail-header h2 {
+    color: #1e293b;
+    font-size: 25px;
+    margin: 18px 0 10px;
+}
+
+.knowledge-detail-date {
+    color: #94a3b8;
+    font-size: 13px;
+    margin: 0;
+}
+
+.knowledge-content {
+    padding: 25px 0;
+    color: #374151;
+    font-size: 15px;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+}
+
+.knowledge-content p {
+    margin-bottom: 16px;
+}
+
+.knowledge-metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    padding: 20px 0;
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.knowledge-metadata div {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.knowledge-metadata strong {
+    color: #64748b;
+    font-size: 12px;
+}
+
+.knowledge-metadata span {
+    color: #1f2937;
+    font-size: 14px;
+}
+
+@media (max-width: 600px) {
+    .knowledge-detail {
+        padding: 20px;
+    }
+
+    .knowledge-detail-header h2 {
+        font-size: 21px;
+    }
+
+    .knowledge-metadata {
+        flex-direction: column;
+        gap: 18px;
+    }
+}
+
+
+/* =====================================
+   FORMULÁRIO DE ARTIGOS
+===================================== */
+
+.article-form-container {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 30px;
+    margin-top: 25px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.article-form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.article-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.article-form-section h2 {
+    color: #1f2937;
+    font-size: 19px;
+    margin: 0;
+}
+
+.article-form-section > p {
+    color: #64748b;
+    font-size: 14px;
+    margin: -12px 0 5px;
+}
+
+.article-field {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.article-field label {
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.article-field input,
+.article-field select,
+.article-field textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 14px;
+    color: #374151;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+.article-field input:focus,
+.article-field select:focus,
+.article-field textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.article-field textarea {
+    resize: vertical;
+    min-height: 280px;
+    line-height: 1.7;
+}
+
+.article-field small {
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.article-publication {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.article-publication strong {
+    color: #1f2937;
+    font-size: 14px;
+}
+
+.article-publication p {
+    color: #64748b;
+    font-size: 13px;
+    margin: 5px 0 0;
+}
+
+.article-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #374151;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.article-checkbox input {
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+}
+
+.article-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.article-form-actions a {
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    .article-form-container {
+        padding: 18px;
+    }
+
+    .article-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .article-form-actions .btn {
+        width: 100%;
+        text-align: center;
+        box-sizing: border-box;
+    }
+}
+
+/* =====================================
+   AÇÕES DOS CARDS DE ARTIGOS
+===================================== */
+
+.knowledge-article-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+}
+
+.knowledge-article-footer > small {
+    align-self: flex-start;
+}
+
+.article-management-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+}
+
+.article-management-actions a,
+.article-management-actions form,
+.article-management-actions button {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.article-management-actions form {
+    margin: 0;
+}
+
+.article-management-actions .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 5px;
+    white-space: nowrap;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.article-management-actions .btn-delete {
+    background: #374151;
+    color: #ffffff;
+    border: 1px solid #374151;
+    cursor: pointer;
+}
+
+.article-management-actions .btn-delete:hover {
+    background: #1f2937;
+}

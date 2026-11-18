@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_ckeditor_5',
     'app',
 ]
 
@@ -136,3 +137,28 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/login/"
+
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': [
+            'heading',
+            '|',
+            'bold',
+            'italic',
+            'underline',
+            'link',
+            '|',
+            'bulletedList',
+            'numberedList',
+            '|',
+            'blockQuote',
+            'insertTable',
+            '|',
+            'undo',
+            'redo',
+        ],
+        'language': 'pt-br',
+        'height': 400,
+        'width': '100%',
+    },
+}
