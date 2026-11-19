@@ -1,0 +1,67 @@
+
+{% extends 'chamados/base.html' %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Gerenciamento de Setores</h1>
+        <p>Cadastre e organize os setores da instituição.</p>
+    </div>
+
+    <a href="{% url 'cadastrar_setor' %}" class="btn">
+        + Novo Setor
+    </a>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="background: #edf7f0; color: #287544; border-color: #cce8d4;">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="table-container">
+    {% if setores %}
+        <table class="data-table" style="min-width: 0;">
+            <thead>
+                <tr>
+                    <th>Nome do Setor</th>
+                    <th style="width: 180px;">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for setor in setores %}
+                    <tr>
+                        <td><strong>{{ setor.nome }}</strong></td>
+
+                        <td>
+                            <div class="user-actions">
+                                <a href="{% url 'editar_setor' setor.id %}" class="btn btn-small">
+                                    Editar
+                                </a>
+
+                                <form method="POST" action="{% url 'excluir_setor' setor.id %}" class="delete-form" data-nome="{{ setor.nome }}">
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="btn btn-small btn-danger">
+                                        Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <h3>Nenhum setor cadastrado</h3>
+            <p>Cadastre um setor para começar a organizar os chamados.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

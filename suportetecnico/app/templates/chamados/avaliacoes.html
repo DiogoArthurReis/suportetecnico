@@ -1,0 +1,100 @@
+
+{% extends 'chamados/base.html' %}
+
+{% block title %}Avaliações dos Atendimentos | Suporte Técnico{% endblock %}
+
+{% block content %}
+
+<div class="detail-header">
+    <h1>Avaliações dos Atendimentos</h1>
+    <p>Acompanhe as opiniões dos solicitantes sobre o suporte recebido.</p>
+</div>
+
+<div class="avaliacoes-resumo">
+
+    <div class="avaliacao-card">
+        <h3>Total de avaliações</h3>
+        <p>{{ total_avaliacoes }}</p>
+    </div>
+
+    <div class="avaliacao-card">
+        <h3>Média geral</h3>
+        <p>
+            {{ media_avaliacoes }}
+            <span class="estrela">★</span>
+        </p>
+    </div>
+
+</div>
+
+<div class="section">
+
+    <div class="page-heading">
+        <div>
+            <h2>Histórico de avaliações</h2>
+            <p>Confira quem avaliou cada atendimento.</p>
+        </div>
+    </div>
+
+    {% if avaliacoes %}
+
+        <div class="table-container">
+            <table class="avaliacoes-tabela">
+                <thead>
+                    <tr>
+                        <th>Chamado</th>
+                        <th>Solicitante</th>
+                        <th>Nota</th>
+                        <th>Comentário</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for avaliacao in avaliacoes %}
+                    <tr>
+                        <td>
+                            #{{ avaliacao.chamado.id }} -
+                            {{ avaliacao.chamado.titulo }}
+                        </td>
+
+                        <td>
+                            {{ avaliacao.chamado.solicitante.nome }}
+                        </td>
+
+                        <td>
+                            <span class="nota-avaliacao">
+                                {{ avaliacao.nota }} ★
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if avaliacao.comentario %}
+                                {{ avaliacao.comentario }}
+                            {% else %}
+                                <span class="comentario-vazio">
+                                    Sem comentário
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ avaliacao.data_avaliacao|date:"d/m/Y H:i" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            <p>Nenhuma avaliação foi registrada até o momento.</p>
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -113,6 +113,7 @@
                 <tr>
                     <th>Chamado</th>
                     <th>Solicitante</th>
+                    <th>Técnico responsável</th>
                     <th>Setor</th>
                     <th>Categoria</th>
                     <th>Prioridade</th>
@@ -133,6 +134,15 @@
                         </td>
 
                         <td>{{ chamado.solicitante.nome }}</td>
+
+                        <td>
+                            {% if chamado.tecnico %}
+                                {{ chamado.tecnico.nome }}
+                            {% else %}
+                                Não atribuído
+                            {% endif %}
+                        </td>
+
                         <td>{{ chamado.setor.nome }}</td>
                         <td>{{ chamado.categoria.nome }}</td>
 

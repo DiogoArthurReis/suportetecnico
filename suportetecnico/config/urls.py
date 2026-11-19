@@ -22,7 +22,17 @@ from app.views import (
     gerenciar_artigos,
     cadastrar_artigo,
     editar_artigo,
-    excluir_artigo
+    excluir_artigo,
+    avaliar_chamado,
+    listar_avaliacoes,
+    lista_setores,
+    cadastrar_setor,
+    editar_setor,
+    excluir_setor,
+    lista_categorias,
+    cadastrar_categoria,
+    editar_categoria,
+    excluir_categoria,
 )
 
 urlpatterns = [
@@ -49,4 +59,14 @@ urlpatterns = [
     path("base-conhecimento/cadastrar/", cadastrar_artigo, name="cadastrar_artigo"),
     path("base-conhecimento/<int:id>/editar/", editar_artigo, name="editar_artigo"),
     path("base-conhecimento/<int:id>/excluir/", excluir_artigo, name="excluir_artigo"),
+    path("chamados/<int:id>/avaliar/", avaliar_chamado, name="avaliar_chamado"),
+    path("avaliacoes/", listar_avaliacoes, name="listar_avaliacoes"),
+    path("setores/", lista_setores, name="lista_setores"),
+    path("setores/cadastrar/", cadastrar_setor, name="cadastrar_setor"),
+    path("setores/<int:id>/editar/", editar_setor, name="editar_setor"),
+    path("setores/<int:id>/excluir/", excluir_setor, name="excluir_setor"),
+    path("categorias/", lista_categorias, name="lista_categorias"),
+    path("categorias/cadastrar/", cadastrar_categoria, name="cadastrar_categoria"),
+    path("categorias/<int:id>/editar/", editar_categoria, name="editar_categoria"),
+    path("categorias/<int:id>/excluir/", excluir_categoria, name="excluir_categoria"),
 ]

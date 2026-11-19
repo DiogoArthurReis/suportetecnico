@@ -25,7 +25,7 @@
                 value="{{ data_inicio }}"
             >
         </div>
-    
+
         <div class="filter-field">
             <label for="data_fim">Data final:</label>
             <input
@@ -35,9 +35,9 @@
                 value="{{ data_fim }}"
             >
         </div>
-    
+
         <button type="submit">Filtrar</button>
-    
+
         <a href="{% url 'relatorios' %}" class="clear-filter">
             Limpar filtros
         </a>
@@ -48,6 +48,7 @@
     <h2>Indicadores gerais</h2>
 
     <div class="reports-stats">
+
         <div class="reports-stat-card">
             <h3>Total de chamados</h3>
             <p>{{ total }}</p>
@@ -72,6 +73,17 @@
             <h3>Encerrados</h3>
             <p>{{ encerrados }}</p>
         </div>
+
+        <div class="reports-stat-card">
+            <h3>Sem técnico</h3>
+            <p>{{ sem_tecnico }}</p>
+        </div>
+
+        <div class="reports-stat-card">
+            <h3>Taxa de encerramento</h3>
+            <p>{{ percentual_encerrados }}%</p>
+        </div>
+
     </div>
 </div>
 
@@ -107,6 +119,42 @@
 
 </div>
 
+<div class="section">
+    <h2>Desempenho dos técnicos</h2>
+
+    {% if desempenho_tecnicos %}
+
+        <div class="table-container">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Técnico</th>
+                        <th>Total de chamados</th>
+                        <th>Em atendimento</th>
+                        <th>Encerrados</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for tecnico in desempenho_tecnicos %}
+                        <tr>
+                            <td>{{ tecnico.tecnico__nome }}</td>
+                            <td>{{ tecnico.total }}</td>
+                            <td>{{ tecnico.em_atendimento }}</td>
+                            <td>{{ tecnico.encerrados }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    {% else %}
+
+        <p>Nenhum chamado atribuído a técnicos no período selecionado.</p>
+
+    {% endif %}
+</div>
+
 {{ por_status|json_script:"dados-status" }}
 {{ por_prioridade|json_script:"dados-prioridade" }}
 {{ por_categoria|json_script:"dados-categoria" }}
@@ -131,7 +179,7 @@
         document.getElementById("dados-tecnico").textContent
     );
 
-    // Gráfico de pizza: chamados por status
+    // Gráfico de chamados por status
     new Chart(document.getElementById("graficoStatus"), {
         type: "pie",
         data: {
@@ -162,7 +210,7 @@
         }
     });
 
-    // Gráfico de pizza: chamados por prioridade
+    // Gráfico de chamados por prioridade
     new Chart(document.getElementById("graficoPrioridade"), {
         type: "pie",
         data: {
@@ -193,7 +241,7 @@
         }
     });
 
-    // Gráfico de barras: chamados por categoria
+    // Gráfico de chamados por categoria
     new Chart(document.getElementById("graficoCategoria"), {
         type: "bar",
         data: {
@@ -218,7 +266,7 @@
         }
     });
 
-    // Gráfico de barras: chamados por técnico
+    // Gráfico de chamados por técnico
     new Chart(document.getElementById("graficoTecnico"), {
         type: "bar",
         data: {

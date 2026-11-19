@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sistema de Chamados{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'app/css/style.css' %}?v=4">
+    <link rel="stylesheet" href="{% static 'app/css/style.css' %}?v=5">
 </head>
 <body>
 
@@ -30,6 +30,7 @@
         <a href="{% url 'base_conhecimento' %}">
             Base de Conhecimento
         </a>
+
         {% if request.user.usuario.perfil == "ADMINISTRADOR" or request.user.usuario.perfil == "SOLICITANTE" %}
             <a href="{% url 'abrir_chamado' %}">
                 Abrir chamado
@@ -41,8 +42,20 @@
                 Usuários
             </a>
 
+            <a href="{% url 'lista_setores' %}">
+                Setores
+            </a>
+
+            <a href="{% url 'lista_categorias' %}">
+                Categorias
+            </a>
+
             <a href="{% url 'relatorios' %}">
                 Relatórios
+            </a>
+
+            <a href="{% url 'listar_avaliacoes' %}">
+                Avaliações
             </a>
         {% endif %}
 
@@ -63,5 +76,93 @@
 
 </div>
 
+<!-- Janela de confirmação de exclusão -->
+<div class="delete-modal-overlay" id="deleteModal">
+    <div class="delete-modal">
+        <h2>Confirmar exclusão</h2>
+
+        <p id="deleteModalMessage">
+            Tem certeza de que deseja excluir este registro?
+            Essa ação não poderá ser desfeita.
+        </p>
+
+        <div class="delete-modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelDelete">
+                Cancelar
+            </button>
+
+            <button type="button" class="btn btn-danger" id="confirmDelete">
+                Excluir
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    const deleteModal = document.getElementById("deleteModal");
+    const cancelDelete = document.getElementById("cancelDelete");
+    const confirmDelete = document.getElementById("confirmDelete");
+    const deleteModalMessage = document.getElementById("deleteModalMessage");
+
+    let formToDelete = null;
+
+    // Identifica o envio dos formulários de exclusão
+    document.addEventListener("submit", function (event) {
+        const form = event.target;
+
+        if (!form.classList.contains("delete-form")) {
+            return;
+        }
+
+        event.preventDefault();
+
+        formToDelete = form;
+
+        const nome = form.dataset.nome;
+
+        deleteModalMessage.textContent = nome
+            ? `Tem certeza de que deseja excluir "${nome}"? Essa ação não poderá ser desfeita.`
+            : "Tem certeza de que deseja excluir este registro? Essa ação não poderá ser desfeita.";
+
+        deleteModal.classList.add("active");
+    });
+
+    // Cancelar exclusão
+    cancelDelete.addEventListener("click", function () {
+        deleteModal.classList.remove("active");
+        formToDelete = null;
+    });
+
+    // Confirmar exclusão
+    confirmDelete.addEventListener("click", function () {
+        if (formToDelete) {
+            const form = formToDelete;
+            formToDelete = null;
+            form.submit();
+        }
+    });
+
+    // Fechar ao clicar fora da janela
+    deleteModal.addEventListener("click", function (event) {
+        if (event.target === deleteModal) {
+            deleteModal.classList.remove("active");
+            formToDelete = null;
+        }
+    });
+
+    // Fechar com a tecla ESC
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            deleteModal.classList.remove("active");
+            formToDelete = null;
+        }
+    });
+});
+
+</script>
+
 </body>
 </html>
+

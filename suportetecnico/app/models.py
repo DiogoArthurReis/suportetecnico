@@ -213,3 +213,44 @@ class Artigo(models.Model):
         verbose_name = "Artigo"
         verbose_name_plural = "Artigos"
         ordering = ["-data_criacao"]
+
+class Avaliacao(models.Model):
+
+    NOTA_CHOICES = [
+        (1, "1 estrela"),
+        (2, "2 estrelas"),
+        (3, "3 estrelas"),
+        (4, "4 estrelas"),
+        (5, "5 estrelas"),
+    ]
+
+    chamado = models.OneToOneField(
+        Chamado,
+        on_delete=models.CASCADE,
+        related_name="avaliacao",
+        verbose_name="Chamado"
+    )
+
+    nota = models.IntegerField(
+        choices=NOTA_CHOICES,
+        verbose_name="Nota"
+    )
+
+    comentario = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Comentário"
+    )
+
+    data_avaliacao = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Data da avaliação"
+    )
+
+    def __str__(self):
+        return f"Avaliação - {self.chamado} ({self.nota} estrelas)"
+
+    class Meta:
+        verbose_name = "Avaliação"
+        verbose_name_plural = "Avaliações"
+        ordering = ["-data_avaliacao"]

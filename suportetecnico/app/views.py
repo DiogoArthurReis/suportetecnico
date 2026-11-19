@@ -1,6 +1,6 @@
 
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Chamado, Usuario, Setor, Categoria, Artigo
+from .models import Chamado, Usuario, Setor, Categoria, Artigo, Avaliacao
 from django.utils import timezone
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -11,8 +11,7 @@ from django.db import IntegrityError, transaction
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django.db.models import Count
-from datetime import datetime, time, timedelta
+from django.db.models import Count, Avg
 from django.contrib import messages
 from django.shortcuts import redirect
 from .forms import ArtigoForm
@@ -270,6 +269,14 @@ def alterar_status(request, id):
         return HttpResponseForbidden(
             "Sua conta não está ativa."
         )
+    
+    if (
+        usuario.perfil == "TECNICO"
+        and chamado.tecnico != usuario
+    ):
+        return HttpResponseForbidden(
+            "Você não é o técnico responsável por este chamado."
+        )
 
     status_validos = [
         "ABERTO",
@@ -349,6 +356,14 @@ def adicionar_resposta(request, id):
     ):
         return HttpResponseForbidden(
             "Você não tem permissão para responder a este chamado."
+        )
+    
+    if (
+        usuario.perfil == "TECNICO"
+        and chamado.tecnico != usuario
+    ):
+        return HttpResponseForbidden(
+            "Você não é o técnico responsável por este chamado."
         )
 
     erro = None
@@ -839,9 +854,216 @@ def alterar_ativo_usuario(request, id):
 
     return redirect("lista_usuarios")
 
+
+# =====================================================
+# GERENCIAMENTO DE SETORES
+# =====================================================
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def lista_setores(request):
+
+    setores = Setor.objects.all().order_by("nome")
+
+    return render(
+        request,
+        "chamados/setores.html",
+        {"setores": setores}
+    )
+
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def cadastrar_setor(request):
+
+    erro = None
+
+    if request.method == "POST":
+
+        nome = request.POST.get("nome", "").strip()
+
+        if not nome:
+            erro = "Informe o nome do setor."
+
+        elif Setor.objects.filter(nome__iexact=nome).exists():
+            erro = "Já existe um setor com esse nome."
+
+        else:
+            Setor.objects.create(nome=nome)
+
+            messages.success(
+                request,
+                "Setor cadastrado com sucesso!"
+            )
+
+            return redirect("lista_setores")
+
+    return render(
+        request,
+        "chamados/cadastrar_setor.html",
+        {
+            "erro": erro,
+            "dados": request.POST
+        }
+    )
+
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def editar_setor(request, id):
+
+    setor = get_object_or_404(Setor, id=id)
+    erro = None
+
+    if request.method == "POST":
+
+        nome = request.POST.get("nome", "").strip()
+
+        if not nome:
+            erro = "Informe o nome do setor."
+
+        elif Setor.objects.filter(
+            nome__iexact=nome
+        ).exclude(id=setor.id).exists():
+            erro = "Já existe um setor com esse nome."
+
+        else:
+            setor.nome = nome
+            setor.save()
+
+            messages.success(
+                request,
+                "Setor atualizado com sucesso!"
+            )
+
+            return redirect("lista_setores")
+
+    return render(
+        request,
+        "chamados/editar_setor.html",
+        {
+            "setor": setor,
+            "erro": erro
+        }
+    )
+
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def excluir_setor(request, id):
+
+    if request.method != "POST":
+        return redirect("lista_setores")
+
+    setor = get_object_or_404(Setor, id=id)
+
+    possui_usuarios = setor.usuario_set.exists()
+    possui_chamados = setor.chamado_set.exists()
+
+    if possui_usuarios or possui_chamados:
+
+        messages.error(
+            request,
+            "Não é possível excluir este setor, "
+            "pois existem usuários ou chamados vinculados a ele."
+        )
+
+    else:
+        setor.delete()
+
+        messages.success(
+            request,
+            "Setor excluído com sucesso!"
+        )
+
+    return redirect("lista_setores")
+
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def lista_categorias(request):
+    categorias = Categoria.objects.all().order_by("nome")
+    return render(request, "chamados/categorias.html", {
+        "categorias": categorias
+    })
+
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def cadastrar_categoria(request):
+    erro = None
+
+    if request.method == "POST":
+        nome = request.POST.get("nome", "").strip()
+
+        if not nome:
+            erro = "Informe o nome da categoria."
+        elif Categoria.objects.filter(nome__iexact=nome).exists():
+            erro = "Já existe uma categoria com esse nome."
+        else:
+            Categoria.objects.create(nome=nome)
+            messages.success(request, "Categoria cadastrada com sucesso!")
+            return redirect("lista_categorias")
+
+    return render(request, "chamados/cadastrar_categoria.html", {
+        "erro": erro,
+        "dados": request.POST
+    })
+
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def editar_categoria(request, id):
+    categoria = get_object_or_404(Categoria, id=id)
+    erro = None
+
+    if request.method == "POST":
+        nome = request.POST.get("nome", "").strip()
+
+        if not nome:
+            erro = "Informe o nome da categoria."
+        elif Categoria.objects.filter(nome__iexact=nome).exclude(id=categoria.id).exists():
+            erro = "Já existe uma categoria com esse nome."
+        else:
+            categoria.nome = nome
+            categoria.save()
+            messages.success(request, "Categoria atualizada com sucesso!")
+            return redirect("lista_categorias")
+
+    return render(request, "chamados/editar_categoria.html", {
+        "categoria": categoria,
+        "erro": erro
+    })
+
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def excluir_categoria(request, id):
+    if request.method != "POST":
+        return redirect("lista_categorias")
+
+    categoria = get_object_or_404(Categoria, id=id)
+
+    possui_chamados = categoria.chamado_set.exists()
+    possui_artigos = categoria.artigo_set.exists()
+
+    if possui_chamados or possui_artigos:
+        messages.error(
+            request,
+            "Não é possível excluir esta categoria, pois existem chamados ou artigos vinculados a ela."
+        )
+    else:
+        categoria.delete()
+        messages.success(request, "Categoria excluída com sucesso!")
+
+    return redirect("lista_categorias")
+
+
+
 # =====================================================
 # RELATORIOS
 # =====================================================
+
 
 @login_required
 @perfil_requerido("ADMINISTRADOR")
@@ -857,6 +1079,7 @@ def relatorios(request):
     if data_fim:
         chamados = chamados.filter(data_abertura__date__lte=data_fim)
 
+    # Indicadores gerais
     total = chamados.count()
 
     abertos = chamados.filter(status="ABERTO").count()
@@ -864,23 +1087,65 @@ def relatorios(request):
     reabertos = chamados.filter(status="REABERTO").count()
     encerrados = chamados.filter(status="ENCERRADO").count()
 
-    por_status = list(chamados.values("status").annotate(
-        quantidade=Count("id")
-    ).order_by("status"))
+    sem_tecnico = chamados.filter(
+        tecnico__isnull=True
+    ).count()
 
-    por_prioridade = list(chamados.values("prioridade").annotate(
-        quantidade=Count("id")
-    ).order_by("prioridade"))
+    percentual_encerrados = (
+        round((encerrados / total) * 100, 1)
+        if total > 0 else 0
+    )
 
-    por_categoria = list(chamados.values("categoria__nome").annotate(
-        quantidade=Count("id")
-    ).order_by("-quantidade"))
+    # Chamados por status
+    por_status = list(
+        chamados.values("status").annotate(
+            quantidade=Count("id")
+        ).order_by("status")
+    )
 
-    por_tecnico = list(chamados.filter(
-        tecnico__isnull=False
-    ).values("tecnico__nome").annotate(
-        quantidade=Count("id")
-    ).order_by("-quantidade"))
+    # Chamados por prioridade
+    por_prioridade = list(
+        chamados.values("prioridade").annotate(
+            quantidade=Count("id")
+        ).order_by("prioridade")
+    )
+
+    # Chamados por categoria
+    por_categoria = list(
+        chamados.values("categoria__nome").annotate(
+            quantidade=Count("id")
+        ).order_by("-quantidade")
+    )
+
+    # Chamados por técnico (utilizado no gráfico atual)
+    por_tecnico = list(
+        chamados.filter(
+            tecnico__isnull=False
+        ).values(
+            "tecnico__nome"
+        ).annotate(
+            quantidade=Count("id")
+        ).order_by("-quantidade")
+    )
+
+    # Desempenho dos técnicos
+    desempenho_tecnicos = list(
+        chamados.filter(
+            tecnico__isnull=False
+        ).values(
+            "tecnico__nome"
+        ).annotate(
+            total=Count("id"),
+            em_atendimento=Count(
+                "id",
+                filter=Q(status="EM_ATENDIMENTO")
+            ),
+            encerrados=Count(
+                "id",
+                filter=Q(status="ENCERRADO")
+            )
+        ).order_by("-total")
+    )
 
     contexto = {
         "total": total,
@@ -888,15 +1153,22 @@ def relatorios(request):
         "em_atendimento": em_atendimento,
         "reabertos": reabertos,
         "encerrados": encerrados,
+        "sem_tecnico": sem_tecnico,
+        "percentual_encerrados": percentual_encerrados,
         "por_status": por_status,
         "por_prioridade": por_prioridade,
         "por_categoria": por_categoria,
         "por_tecnico": por_tecnico,
+        "desempenho_tecnicos": desempenho_tecnicos,
         "data_inicio": data_inicio,
         "data_fim": data_fim,
     }
 
-    return render(request, "chamados/relatorios.html", contexto)
+    return render(
+        request,
+        "chamados/relatorios.html",
+        contexto
+    )
 
 # =====================================================
 # BASE DE CONHECIMENTO
@@ -1036,6 +1308,8 @@ def cadastrar_artigo(request):
         "chamados/cadastrar_artigo.html",
         contexto
     )
+
+
 @login_required
 @perfil_requerido("ADMINISTRADOR")
 def editar_artigo(request, id):
@@ -1099,3 +1373,104 @@ def excluir_artigo(request, id):
         return redirect("gerenciar_artigos")
 
     return redirect("gerenciar_artigos")
+
+# =====================================================
+# AVALIAR ATENDIMENTO
+# =====================================================
+
+@login_required
+def avaliar_chamado(request, id):
+
+    usuario = Usuario.objects.filter(
+        usuario_login=request.user,
+        ativo=True
+    ).first()
+
+    if usuario is None or usuario.perfil != "SOLICITANTE":
+        return HttpResponseForbidden(
+            "Somente solicitantes podem avaliar chamados."
+        )
+
+    chamado = get_object_or_404(
+        Chamado,
+        id=id,
+        solicitante=usuario
+    )
+
+    if chamado.status != "ENCERRADO":
+        return HttpResponseForbidden(
+            "Somente chamados encerrados podem ser avaliados."
+        )
+
+    if Avaliacao.objects.filter(chamado=chamado).exists():
+        return HttpResponseForbidden(
+            "Este chamado já foi avaliado."
+        )
+
+    erro = None
+
+    if request.method == "POST":
+
+        nota = request.POST.get("nota")
+        comentario = request.POST.get("comentario", "").strip()
+
+        if nota not in ["1", "2", "3", "4", "5"]:
+            erro = "Selecione uma nota de 1 a 5 estrelas."
+
+        else:
+
+            Avaliacao.objects.create(
+                chamado=chamado,
+                nota=int(nota),
+                comentario=comentario
+            )
+
+            messages.success(
+                request,
+                "Avaliação enviada com sucesso!"
+            )
+
+            return redirect(
+                "detalhe_chamado",
+                id=chamado.id
+            )
+
+    return render(
+        request,
+        "chamados/avaliar_chamado.html",
+        {
+            "chamado": chamado,
+            "erro": erro,
+        }
+    )
+
+# =====================================================
+# AVALIAÇÕES DOS ATENDIMENTOS
+# =====================================================
+
+@login_required
+@perfil_requerido("ADMINISTRADOR")
+def listar_avaliacoes(request):
+
+    avaliacoes = Avaliacao.objects.select_related(
+        "chamado",
+        "chamado__solicitante"
+    ).order_by("-data_avaliacao")
+
+    total_avaliacoes = avaliacoes.count()
+
+    media_avaliacoes = avaliacoes.aggregate(
+        media=Avg("nota")
+    )["media"] or 0
+
+    contexto = {
+        "avaliacoes": avaliacoes,
+        "total_avaliacoes": total_avaliacoes,
+        "media_avaliacoes": round(media_avaliacoes, 1),
+    }
+
+    return render(
+        request,
+        "chamados/avaliacoes.html",
+        contexto
+    )

@@ -1,0 +1,50 @@
+
+{% extends 'chamados/base.html' %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Cadastrar Setor</h1>
+        <p>Preencha os dados para adicionar um novo setor.</p>
+    </div>
+</div>
+
+<div class="form-container">
+
+    {% if erro %}
+        <div class="error-message">
+            {{ erro }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="nome">Nome do Setor</label>
+            <input
+                type="text"
+                name="nome"
+                id="nome"
+                value="{{ dados.nome|default:'' }}"
+                maxlength="100"
+                placeholder="Ex.: Tecnologia da Informação"
+                required
+            >
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn">
+                Cadastrar Setor
+            </button>
+
+            <a href="{% url 'lista_setores' %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

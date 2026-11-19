@@ -1,0 +1,67 @@
+
+{% extends 'chamados/base.html' %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Gerenciamento de Categorias</h1>
+        <p>Cadastre e organize as categorias dos chamados.</p>
+    </div>
+
+    <a href="{% url 'cadastrar_categoria' %}" class="btn">
+        + Nova Categoria
+    </a>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="error-message" style="background: #edf7f0; color: #287544; border-color: #cce8d4;">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="table-container">
+    {% if categorias %}
+        <table class="data-table" style="min-width: 0;">
+            <thead>
+                <tr>
+                    <th>Nome da Categoria</th>
+                    <th style="width: 180px;">Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for categoria in categorias %}
+                    <tr>
+                        <td><strong>{{ categoria.nome }}</strong></td>
+
+                        <td>
+                            <div class="user-actions">
+                                <a href="{% url 'editar_categoria' categoria.id %}" class="btn btn-small">
+                                    Editar
+                                </a>
+
+                                <form method="POST" action="{% url 'excluir_categoria' categoria.id %}" class="delete-form" data-nome="{{ categoria.nome }}">
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="btn btn-small btn-danger">
+                                        Excluir
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="empty-state">
+            <h3>Nenhuma categoria cadastrada</h3>
+            <p>Cadastre uma categoria para organizar os chamados.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,105 @@
+
+{% extends 'chamados/base.html' %}
+
+{% block title %}Avaliar Atendimento | Suporte Técnico{% endblock %}
+
+{% block content %}
+
+<div class="detail-header">
+    <h1>Avaliar Atendimento</h1>
+    <p>Compartilhe sua experiência com o atendimento recebido.</p>
+</div>
+
+<div class="section">
+
+    <div class="page-heading">
+        <div>
+            <h2>{{ chamado.titulo }}</h2>
+            <p>Chamado #{{ chamado.id }}</p>
+        </div>
+
+        <span class="status status-encerrado">
+            Encerrado
+        </span>
+    </div>
+
+    <p style="margin-bottom: 25px;">
+        Sua opinião é importante para melhorar a qualidade
+        dos serviços de suporte técnico.
+    </p>
+
+    {% if erro %}
+        <div class="alert alert-error">
+            {{ erro }}
+        </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+
+            <label>
+                Como você avalia o atendimento?
+            </label>
+
+            <div class="rating-options">
+                <label>
+                    <input type="radio" name="nota" value="1">
+                    <span>★</span>
+                </label>
+
+                <label>
+                    <input type="radio" name="nota" value="2">
+                    <span>★★</span>
+                </label>
+
+                <label>
+                    <input type="radio" name="nota" value="3">
+                    <span>★★★</span> 
+                </label>
+
+                <label>
+                    <input type="radio" name="nota" value="4">
+                    <span>★★★★</span>
+                </label>
+
+                <label>
+                    <input type="radio" name="nota" value="5">
+                    <span>★★★★★</span>
+                </label>
+
+            </div>
+
+        </div>
+
+        <div class="form-group">
+            <label for="comentario">
+                Comentário (opcional)
+            </label>
+
+            <textarea
+                name="comentario"
+                id="comentario"
+                rows="5"
+                placeholder="Conte como foi sua experiência com o atendimento..."
+            ></textarea>
+        </div>
+
+        <div class="detail-actions">
+
+            <button type="submit" class="btn">
+                Enviar avaliação
+            </button>
+
+            <a href="{% url 'detalhe_chamado' chamado.id %}" class="btn btn-secondary">
+                Cancelar
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}
